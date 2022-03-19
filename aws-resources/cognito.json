@@ -1,0 +1,100 @@
+{
+  "Resources": {
+    "CognitoPool": {
+      "Type": "AWS::Cognito::UserPool",
+      "Properties": {
+        "AccountRecoverySetting": {
+          "RecoveryMechanisms": [
+            {
+              "Name": "verified_email",
+              "Priority": 1
+            }
+          ]
+        },
+        "EmailConfiguration": {
+          "EmailSendingAccount": "COGNITO_DEFAULT"
+        },
+        "AutoVerifiedAttributes": [
+          "email"
+        ],
+        "UsernameAttributes": ["email"],
+        "UsernameConfiguration": {
+          "CaseSensitive": false
+        },
+        "UserPoolName": "test-pool-final",
+        "Schema": [
+          {
+            "Mutable": false,
+            "Name": "email",
+            "Required": true
+          },
+          {
+            "Mutable": false,
+            "Name": "name",
+            "Required": true
+          }
+        ]
+      }
+    },
+    "UserPoolDomain":{
+      "Type" : "AWS::Cognito::UserPoolDomain",
+      "Properties" : {
+          "Domain" : "hungryheads",
+          "UserPoolId" : {
+            "Ref": "CognitoPool"
+          }
+        }
+    },
+    "UserPoolClient": {
+      "Type" : "AWS::Cognito::UserPoolClient",
+      "Properties" : {
+        "ClientName": "flutter-app",
+        "ExplicitAuthFlows": [
+          "ALLOW_USER_PASSWORD_AUTH",
+          "ALLOW_REFRESH_TOKEN_AUTH"
+        ],
+        "UserPoolId" : {
+          "Ref": "CognitoPool"
+        }
+      }
+    },
+    "UserPoolIdentityProviderGoogle": {
+      "Type": "AWS::Cognito::UserPoolIdentityProvider",
+      "Properties": {
+        "UserPoolId": {
+          "Ref": "CognitoPool"
+        },
+        "ProviderName": "Google",
+        "ProviderDetails": {
+          "client_id": "1093762161401-msji1vlu2ihd2t23n1vpbracislq9sbc.apps.googleusercontent.com",
+          "client_secret": "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",
+          "authorize_scopes": "profile email openid"
+        },
+        "ProviderType": "Google",
+        "AttributeMapping": {
+          "email": "email",
+          "name":"names"
+        }
+      }
+    },
+    "UserPoolIdentityProviderFacebook": {
+      "Type": "AWS::Cognito::UserPoolIdentityProvider",
+      "Properties": {
+        "UserPoolId": {
+          "Ref": "CognitoPool"
+        },
+        "ProviderName": "Facebook",
+        "ProviderDetails": {
+          "client_id": "968471563776676",
+          "client_secret": "60f173f70c4601b33a9276db01dc5cec",
+          "authorize_scopes": "public_profile,email"
+        },
+        "ProviderType": "Facebook",
+        "AttributeMapping": {
+          "email": "email",
+          "name":"id"
+        }
+      }
+    }
+  }
+}
