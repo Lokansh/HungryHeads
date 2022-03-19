@@ -1,0 +1,378 @@
+{
+  "Resources": {
+    "LambdaExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": "LambdaExecutionRole",
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        ]
+      }
+    },
+    "UserManagementLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "exports.handler = async (event) => {\nconst response = {\nstatusCode: 200,\nbody: JSON.stringify('Hello from Lambda!'),\n};\nreturn response;\n};"
+        },
+        "Role": {
+          "Fn::GetAtt": ["LambdaExecutionRole", "Arn"]
+        },
+        "Runtime": "nodejs14.x",
+        "Handler": "index.handler",
+        "FunctionName": "user-management-lambda"
+      }
+    },
+    "LambdaPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "UserManagementLambda"
+        },
+        "Principal": "apigateway.amazonaws.com"
+      }
+    },
+    "APIGateway": {
+      "Type": "AWS::ApiGateway::RestApi",
+      "Properties": {
+        "Name": "hungryheads"
+      }
+    },
+    "APIResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": ["APIGateway", "RootResourceId"]
+        },
+        "PathPart": "api",
+        "RestApiId": {
+          "Ref": "APIGateway"
+        }
+      }
+    },
+    "UserResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": ["APIResource", "ResourceId"]
+        },
+        "PathPart": "user",
+        "RestApiId": {
+          "Ref": "APIGateway"
+        }
+      }
+    },
+    "SignupResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": ["UserResource", "ResourceId"]
+        },
+        "PathPart": "signup",
+        "RestApiId": {
+          "Ref": "APIGateway"
+        }
+      }
+    },
+    "APIUserSignupPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "ApiKeyRequired": true,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "POST",
+        "ResourceId": {
+          "Fn::GetAtt": ["SignupResource", "ResourceId"]
+        },
+        "RestApiId": {
+          "Ref": "APIGateway"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Sub": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${UserManagementLambda.Arn}/invocations"
+          }
+        }
+      }
+    },
+    "VerificationResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": ["UserResource", "ResourceId"]
+        },
+        "PathPart": "verification",
+        "RestApiId": {
+          "Ref": "APIGateway"
+        }
+      }
+    },
+    "APIUserVerificationPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "ApiKeyRequired": true,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "POST",
+        "ResourceId": {
+          "Fn::GetAtt": ["VerificationResource", "ResourceId"]
+        },
+        "RestApiId": {
+          "Ref": "APIGateway"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Sub": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${UserManagementLambda.Arn}/invocations"
+          }
+        }
+      }
+    },
+    "LoginResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": ["UserResource", "ResourceId"]
+        },
+        "PathPart": "login",
+        "RestApiId": {
+          "Ref": "APIGateway"
+        }
+      }
+    },
+    "APIUserLoginPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "ApiKeyRequired": true,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "POST",
+        "ResourceId": {
+          "Fn::GetAtt": ["LoginResource", "ResourceId"]
+        },
+        "RestApiId": {
+          "Ref": "APIGateway"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Sub": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${UserManagementLambda.Arn}/invocations"
+          }
+        }
+      }
+    },
+    "ForgotPasswordResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": ["UserResource", "ResourceId"]
+        },
+        "PathPart": "forgotPassword",
+        "RestApiId": {
+          "Ref": "APIGateway"
+        }
+      }
+    },
+    "APIUserForgotPasswordPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "ApiKeyRequired": true,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "POST",
+        "ResourceId": {
+          "Fn::GetAtt": ["ForgotPasswordResource", "ResourceId"]
+        },
+        "RestApiId": {
+          "Ref": "APIGateway"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Sub": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${UserManagementLambda.Arn}/invocations"
+          }
+        }
+      }
+    },
+    "ResendVerificationCodeResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": ["UserResource", "ResourceId"]
+        },
+        "PathPart": "resendCode",
+        "RestApiId": {
+          "Ref": "APIGateway"
+        }
+      }
+    },
+    "APIUserResendVerificationCodePost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "ApiKeyRequired": true,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "POST",
+        "ResourceId": {
+          "Fn::GetAtt": ["ResendVerificationCodeResource", "ResourceId"]
+        },
+        "RestApiId": {
+          "Ref": "APIGateway"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Sub": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${UserManagementLambda.Arn}/invocations"
+          }
+        }
+      }
+    },
+    "ConfirmForgotPasswordResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": ["UserResource", "ResourceId"]
+        },
+        "PathPart": "confirmForgotPassword",
+        "RestApiId": {
+          "Ref": "APIGateway"
+        }
+      }
+    },
+    "APIUserConfirmForgotPasswordPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "ApiKeyRequired": true,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "POST",
+        "ResourceId": {
+          "Fn::GetAtt": ["ConfirmForgotPasswordResource", "ResourceId"]
+        },
+        "RestApiId": {
+          "Ref": "APIGateway"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Sub": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${UserManagementLambda.Arn}/invocations"
+          }
+        }
+      }
+    },
+    "LogoutResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": ["UserResource", "ResourceId"]
+        },
+        "PathPart": "logout",
+        "RestApiId": {
+          "Ref": "APIGateway"
+        }
+      }
+    },
+    "APIUserLogoutPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "ApiKeyRequired": true,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "POST",
+        "ResourceId": {
+          "Fn::GetAtt": ["LogoutResource", "ResourceId"]
+        },
+        "RestApiId": {
+          "Ref": "APIGateway"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Sub": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${UserManagementLambda.Arn}/invocations"
+          }
+        }
+      }
+    },
+    "ChangePasswordResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": ["UserResource", "ResourceId"]
+        },
+        "PathPart": "changePassword",
+        "RestApiId": {
+          "Ref": "APIGateway"
+        }
+      }
+    },
+    "APIUserChangePasswordPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "ApiKeyRequired": true,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "POST",
+        "ResourceId": {
+          "Fn::GetAtt": ["ChangePasswordResource", "ResourceId"]
+        },
+        "RestApiId": {
+          "Ref": "APIGateway"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Sub": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${UserManagementLambda.Arn}/invocations"
+          }
+        }
+      }
+    },
+    "DevDeployment": {
+      "DependsOn": "APIUserLogoutPost",
+      "Type": "AWS::ApiGateway::Deployment",
+      "Properties": {
+        "RestApiId": {
+          "Ref": "APIGateway"
+        },
+        "StageName": "dev"
+      }
+    },
+    "DevStage": {
+      "Type": "AWS::ApiGateway::Stage",
+      "Properties": {
+        "DeploymentId": {
+          "Ref": "DevDeployment"
+        },
+        "RestApiId": {
+          "Ref": "APIGateway"
+        },
+        "MethodSettings": [
+          {
+            "HttpMethod" : "POST",
+            "ResourcePath":"/api/user/signup"
+          },
+          {
+            "HttpMethod" : "POST",
+            "ResourcePath":"/api/user/verification"
+          },
+          {
+            "HttpMethod" : "POST",
+            "ResourcePath":"/api/user/login"
+          }
+        ]
+      }
+    }
+  }
+}
