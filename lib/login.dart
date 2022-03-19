@@ -1,6 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:untitled/forgotPassword.dart';
+import 'package:untitled/verification.dart';
 import 'home.dart';
 import 'signup.dart';
+import 'widgets/ValidationAlert.dart';
+import 'package:http/http.dart' as http;
 
 class Login extends StatelessWidget {
   const Login({Key? key}) : super(key: key);
@@ -31,6 +37,7 @@ class Login extends StatelessWidget {
                         padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                         child: TextField(
                           controller: emailController,
+                          keyboardType: TextInputType.emailAddress,
                           decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.email),
                             border: OutlineInputBorder(),
@@ -52,13 +59,75 @@ class Login extends StatelessWidget {
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(primary: Colors.teal),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Home(email: emailController.text),
-                      ),
-                    );
+                  onPressed: () async {
+                    if (emailController.text != "" &&
+                        passwordController.text != "") {
+                      final response = await login({
+                        "email": emailController.text,
+                        "password": passwordController.text
+                      });
+                      final body = jsonDecode(response.body);
+                      if (response.statusCode == 200) {
+                        String accessToken = body["AuthenticationResult"]["AccessToken"];
+                        String name = body["UserAttributes"]["Value"];
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                Home(name: name, email: emailController.text, accessToken: accessToken),
+                          ),
+                        );
+                      } else if (response.statusCode == 500 && body["message"] == "User is not confirmed.") {
+                        final resendCodeResponse = await resendCode({
+                          "email": emailController.text,
+                        });
+                        if (resendCodeResponse.statusCode == 200) {
+                          showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    title: const Text('Confirm!'),
+                                    content: SingleChildScrollView(
+                                      child: ListBody(
+                                        children: [
+                                          const Text("Please confirm your account"),
+                                        ],
+                                      ),
+                                    ),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        child: const Text('Ok'),
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  Verification(
+                                                      email:
+                                                          emailController.text),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ));
+                        } else {
+                          showDialog(
+                              context: context,
+                              builder: (context) =>
+                                  ValidationAlert(message: body["message"]));
+                        }
+                      } else {
+                        showDialog(
+                            context: context,
+                            builder: (context) =>
+                                ValidationAlert(message: body["message"]));
+                      }
+                    } else {
+                      showDialog(
+                          context: context,
+                          builder: (context) => const ValidationAlert(
+                              message: "Provide valid details"));
+                    }
                   },
                   child: const Text('Submit'),
                 ),
@@ -74,7 +143,7 @@ class Login extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const SignUp(),
+                        builder: (context) => const ForgotPassword(),
                       ),
                     );
                   },
@@ -99,6 +168,30 @@ class Login extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Future<http.Response> login(Object body) {
+    return http.post(
+      Uri.parse(
+          'https://q6ed0onbpd.execute-api.us-east-1.amazonaws.com/dev/api/user/login'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'x-api-key': 'c5ec1kyeAD1GADOf9l1qR7lBJOjC8WSK26ryi0lE'
+      },
+      body: jsonEncode(body),
+    );
+  }
+
+  Future<http.Response> resendCode(Object body) {
+    return http.post(
+      Uri.parse(
+          'https://q6ed0onbpd.execute-api.us-east-1.amazonaws.com/dev/api/user/resendCode'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'x-api-key': 'c5ec1kyeAD1GADOf9l1qR7lBJOjC8WSK26ryi0lE'
+      },
+      body: jsonEncode(body),
     );
   }
 }
