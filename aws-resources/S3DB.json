@@ -14,13 +14,29 @@
                     "RestrictPublicBuckets": true
                 } 
             }
-        }    
+        },
+        "s3BucketIngreds": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "AccessControl": "AuthenticatedRead",
+                "PublicAccessBlockConfiguration": {
+                    "BlockPublicAcls": true,
+                    "BlockPublicPolicy": true,
+                    "IgnorePublicAcls": true,
+                    "RestrictPublicBuckets": true
+                } 
+            }
+        }       
         
     },
     "Outputs": {
-        "Bucketname": {
-            "Description": "Bucket name",
+        "FrontBucketname": {
+            "Description": "Bucket for Product Picture",
             "Value": {"Ref" : "s3Bucket"}
+        },
+        "IngredBucketname": {
+            "Description": "Bucket for Ingredients Pics",
+            "Value": {"Ref" : "s3BucketIngreds"}
         }
     }
 }
