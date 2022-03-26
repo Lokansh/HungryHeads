@@ -35,7 +35,7 @@ class SignUp extends StatelessWidget {
                     decoration: const InputDecoration(
                       prefixIcon: Icon(Icons.account_circle_rounded),
                       border: OutlineInputBorder(),
-                      labelText: 'Name',
+                      labelText: 'Username',
                     ),
                   ),
                 ),
@@ -96,13 +96,13 @@ class SignUp extends StatelessWidget {
                               context: context,
                               builder: (context) => const ValidationAlert(message: "Password mismatch"));
                         } else {
-                          final response = await signup({"email": emailController.text, "password": passwordController.text, "name": nameController.text});
+                          final response = await signup({"email": emailController.text, "password": passwordController.text, "username": nameController.text});
                           final body = jsonDecode(response.body);
                           if(response.statusCode == 200) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => Verification(email: emailController.text,),
+                                builder: (context) => Verification(email: nameController.text,),
                               ),
                             );
                           }

@@ -6,10 +6,10 @@ import 'login.dart';
 import 'package:http/http.dart' as http;
 
 class Home extends StatelessWidget {
-  const Home({Key? key, required this.name, required this.email, required this.accessToken})
+  const Home({Key? key, required this.username, required this.email, required this.accessToken})
       : super(key: key);
 
-  final String name;
+  final String username;
   final String email;
   final String accessToken;
 
@@ -17,7 +17,7 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-      title: Text('Welcome $name'),
+      title: Text('Welcome $username'),
       leading: Builder(
         builder: (BuildContext context) {
           return IconButton(

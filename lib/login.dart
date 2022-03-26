@@ -41,7 +41,7 @@ class Login extends StatelessWidget {
                           decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.email),
                             border: OutlineInputBorder(),
-                            labelText: 'Email',
+                            labelText: 'Email/Username',
                           ),
                         ),
                       ),
@@ -68,16 +68,20 @@ class Login extends StatelessWidget {
                       });
                       final body = jsonDecode(response.body);
                       if (response.statusCode == 200) {
-                        String accessToken = body["AuthenticationResult"]["AccessToken"];
-                        String name = body["UserAttributes"]["Value"];
+                        String accessToken =
+                            body["AuthenticationResult"]["AccessToken"];
+                        String name = body["Username"];
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                Home(name: name, email: emailController.text, accessToken: accessToken),
+                            builder: (context) => Home(
+                                username: name,
+                                email: emailController.text,
+                                accessToken: accessToken),
                           ),
                         );
-                      } else if (response.statusCode == 500 && body["message"] == "User is not confirmed.") {
+                      } else if (response.statusCode == 500 &&
+                          body["message"] == "User is not confirmed.") {
                         final resendCodeResponse = await resendCode({
                           "email": emailController.text,
                         });
@@ -89,7 +93,8 @@ class Login extends StatelessWidget {
                                     content: SingleChildScrollView(
                                       child: ListBody(
                                         children: [
-                                          const Text("Please confirm your account"),
+                                          const Text(
+                                              "Please confirm your account"),
                                         ],
                                       ),
                                     ),
@@ -111,10 +116,11 @@ class Login extends StatelessWidget {
                                     ],
                                   ));
                         } else {
+                          final resendCodeBody = jsonDecode(resendCodeResponse.body);
                           showDialog(
                               context: context,
-                              builder: (context) =>
-                                  ValidationAlert(message: body["message"]));
+                              builder: (context) => ValidationAlert(
+                                  message: resendCodeBody["message"]));
                         }
                       } else {
                         showDialog(

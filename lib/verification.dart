@@ -52,7 +52,7 @@ class Verification extends StatelessWidget {
                   onPressed: () async {
                     if (codeController.text != "") {
                       final response = await verification(
-                          {"email": email, "code": codeController.text});
+                          {"username": email, "code": codeController.text});
                       final body = jsonDecode(response.body);
                       if (response.statusCode == 200) {
                         showDialog(
