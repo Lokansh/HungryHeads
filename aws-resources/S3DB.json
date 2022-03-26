@@ -1,0 +1,26 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Create S3 bucket Database to store images for HungryHeads App",    
+    
+    "Resources": {        
+        "s3Bucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "AccessControl": "AuthenticatedRead",
+                "PublicAccessBlockConfiguration": {
+                    "BlockPublicAcls": true,
+                    "BlockPublicPolicy": true,
+                    "IgnorePublicAcls": true,
+                    "RestrictPublicBuckets": true
+                } 
+            }
+        }    
+        
+    },
+    "Outputs": {
+        "Bucketname": {
+            "Description": "Bucket name",
+            "Value": {"Ref" : "s3Bucket"}
+        }
+    }
+}
