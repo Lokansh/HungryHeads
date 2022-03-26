@@ -35,12 +35,36 @@
         "FunctionName": "user-management-lambda"
       }
     },
-    "LambdaPermission": {
+    "ProductLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "exports.handler = async (event) => {\nconst response = {\nstatusCode: 200,\nbody: JSON.stringify('Hello from Lambda!'),\n};\nreturn response;\n};"
+        },
+        "Role": {
+          "Fn::GetAtt": ["LambdaExecutionRole", "Arn"]
+        },
+        "Runtime": "nodejs14.x",
+        "Handler": "index.handler",
+        "FunctionName": "product-lambda"
+      }
+    },
+    "LambdaPermissionUserManagement": {
       "Type": "AWS::Lambda::Permission",
       "Properties": {
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
           "Ref": "UserManagementLambda"
+        },
+        "Principal": "apigateway.amazonaws.com"
+      }
+    },
+    "LambdaPermissionProduct": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "ProductLambda"
         },
         "Principal": "apigateway.amazonaws.com"
       }
@@ -339,6 +363,51 @@
         }
       }
     },
+    "ProductResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": ["APIResource", "ResourceId"]
+        },
+        "PathPart": "product",
+        "RestApiId": {
+          "Ref": "APIGateway"
+        }
+      }
+    },
+    "AddProductResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": ["ProductResource", "ResourceId"]
+        },
+        "PathPart": "add",
+        "RestApiId": {
+          "Ref": "APIGateway"
+        }
+      }
+    },
+    "APIProductAddPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "ApiKeyRequired": true,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "POST",
+        "ResourceId": {
+          "Fn::GetAtt": ["AddProductResource", "ResourceId"]
+        },
+        "RestApiId": {
+          "Ref": "APIGateway"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Sub": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${ProductLambda.Arn}/invocations"
+          }
+        }
+      }
+    },
     "DevDeployment": {
       "DependsOn": "APIUserLogoutPost",
       "Type": "AWS::ApiGateway::Deployment",
@@ -370,6 +439,30 @@
           {
             "HttpMethod" : "POST",
             "ResourcePath":"/api/user/login"
+          },
+          {
+            "HttpMethod" : "POST",
+            "ResourcePath":"/api/user/forgotPassword"
+          },
+          {
+            "HttpMethod" : "POST",
+            "ResourcePath":"/api/user/confirmForgotPassword"
+          },
+          {
+            "HttpMethod" : "POST",
+            "ResourcePath":"/api/user/resendCode"
+          },
+          {
+            "HttpMethod" : "POST",
+            "ResourcePath":"/api/user/logout"
+          },
+          {
+            "HttpMethod" : "POST",
+            "ResourcePath":"/api/user/changePassword"
+          },
+          {
+            "HttpMethod" : "POST",
+            "ResourcePath":"/api/product/add"
           }
         ]
       }
