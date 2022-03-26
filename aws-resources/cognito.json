@@ -14,46 +14,32 @@
         "EmailConfiguration": {
           "EmailSendingAccount": "COGNITO_DEFAULT"
         },
-        "AutoVerifiedAttributes": [
-          "email"
-        ],
-        "UsernameAttributes": ["email"],
+        "AutoVerifiedAttributes": ["email"],
+        "AliasAttributes": ["email", "preferred_username"],
         "UsernameConfiguration": {
           "CaseSensitive": false
         },
-        "UserPoolName": "test-pool-final",
-        "Schema": [
-          {
-            "Mutable": false,
-            "Name": "email",
-            "Required": true
-          },
-          {
-            "Mutable": false,
-            "Name": "name",
-            "Required": true
-          }
-        ]
+        "UserPoolName": "hungry-heads-user-pool"
       }
     },
-    "UserPoolDomain":{
-      "Type" : "AWS::Cognito::UserPoolDomain",
-      "Properties" : {
-          "Domain" : "hungryheads",
-          "UserPoolId" : {
-            "Ref": "CognitoPool"
-          }
+    "UserPoolDomain": {
+      "Type": "AWS::Cognito::UserPoolDomain",
+      "Properties": {
+        "Domain": "hungryheads",
+        "UserPoolId": {
+          "Ref": "CognitoPool"
         }
+      }
     },
     "UserPoolClient": {
-      "Type" : "AWS::Cognito::UserPoolClient",
-      "Properties" : {
+      "Type": "AWS::Cognito::UserPoolClient",
+      "Properties": {
         "ClientName": "flutter-app",
         "ExplicitAuthFlows": [
           "ALLOW_USER_PASSWORD_AUTH",
           "ALLOW_REFRESH_TOKEN_AUTH"
         ],
-        "UserPoolId" : {
+        "UserPoolId": {
           "Ref": "CognitoPool"
         }
       }
@@ -72,8 +58,7 @@
         },
         "ProviderType": "Google",
         "AttributeMapping": {
-          "email": "email",
-          "name":"names"
+          "email": "email"
         }
       }
     },
@@ -91,8 +76,7 @@
         },
         "ProviderType": "Facebook",
         "AttributeMapping": {
-          "email": "email",
-          "name":"id"
+          "email": "email"
         }
       }
     }
