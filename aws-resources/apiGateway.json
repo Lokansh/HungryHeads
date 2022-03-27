@@ -476,11 +476,29 @@
         }
       }
     },
+    "Authorizer": {
+      "Type": "AWS::ApiGateway::Authorizer",
+      "Properties": {
+          "AuthorizerResultTtlInSeconds": "300",
+          "Type": "COGNITO_USER_POOLS",
+          "ProviderARNs":[
+            "arn:aws:cognito-idp:us-east-1:182962509948:userpool/us-east-1_L62BPtSMc"
+          ],
+          "IdentitySource": "method.request.header.Auth",
+          "Name": "DefaultAuthorizer",
+          "RestApiId": {
+              "Ref": "APIGateway"
+          }
+      }
+  },
     "APIProductAddPost": {
       "Type": "AWS::ApiGateway::Method",
       "Properties": {
         "ApiKeyRequired": true,
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId":{
+          "Ref":"Authorizer"
+        },
         "HttpMethod": "POST",
         "ResourceId": {
           "Fn::GetAtt": ["AddProductResource", "ResourceId"]
@@ -501,7 +519,10 @@
       "Type": "AWS::ApiGateway::Method",
       "Properties": {
         "ApiKeyRequired": true,
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId":{
+          "Ref":"Authorizer"
+        },
         "HttpMethod": "POST",
         "ResourceId": {
           "Fn::GetAtt": ["RecommendProductResource", "ResourceId"]
@@ -522,7 +543,10 @@
       "Type": "AWS::ApiGateway::Method",
       "Properties": {
         "ApiKeyRequired": true,
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId":{
+          "Ref":"Authorizer"
+        },
         "HttpMethod": "POST",
         "ResourceId": {
           "Fn::GetAtt": ["SearchProductResource", "ResourceId"]
