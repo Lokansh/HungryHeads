@@ -3,7 +3,6 @@ const Ajv = require("ajv");
 const ajv = new Ajv(); // options can be passed, e.g. {allErrors: true}
 
 const uuid = require("uuid");
-// const textract = require("@aws-sdk/client-textract");
 const constants = require("../constants");
 
 const addProduct = async (event) => {
@@ -31,6 +30,7 @@ const addProduct = async (event) => {
     }
 
     if(body.Image2){
+
       var presignedPUTURL = s3.getSignedUrl('putObject', {
         Bucket: 's3-bucket-s3bucketingreds-ydw7cqk3z7ig',
         Key: body.ItemId+"-ingred", //filename
@@ -49,24 +49,13 @@ const addProduct = async (event) => {
     var params = {
       TableName: 'Items',
       Item: AWS.DynamoDB.Converter.marshall(body)
-  };
-      ddb.putItem(params, function(err,data){
-        if(err){
-            throw err;
-        }
-        else
-        {
-          res.data = data;
-          return {
-            statusCode: 200,
-            body: JSON.stringify(res),
-          };        
-        }
-    });
-    
+    };
+
+    const data = await ddb.putItem(params).promise();
+    return {statusCode: 200,body: JSON.stringify(res)};
+
   } catch (error) {
-      console.log(error);
-      const message = error.message ? error.message : "Internal server error";
+      const message = error?.message ? error.message : "Internal server error";
     return { statusCode: 500, body: JSON.stringify({ message: message }) };
   }
 };
