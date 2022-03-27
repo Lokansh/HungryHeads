@@ -1,82 +1,94 @@
 const AWS = require("aws-sdk");
+const Ajv = require("ajv");
+const ajv = new Ajv(); // options can be passed, e.g. {allErrors: true}
+
+const uuid = require("uuid");
 // const textract = require("@aws-sdk/client-textract");
 const constants = require("../constants");
 
 const addProduct = async (event) => {
   try {
     const body = JSON.parse(event.body);
-    // const REGION = "us-east-1";
-    // const textractClient = new textract.TextractClient({ region: REGION });
+    validateData(body);
 
-    // const params = {
-    //   Document: {
-    //     S3Object: {
-    //       Bucket: "s3-bucket-s3bucket-1wjvsaapgbhy2",
-    //       Name: "hellman-mayo.pdf",
-    //     },
-    //   },
-    // };
-    // console.log("params set");
-    // AWS.config.loadFromPath("./config.json");
     AWS.config.credentials = {
       "accessKeyId": "AKIASVGLKLB6K6EQAUPJ",
       "secretAccessKey": "d6waIXEGNfm4qd3b96U4M+Bx3p9vodhylVYQzVym"
     };
-    var s3 = new AWS.S3();
+    var s3,res={};
+    body.ItemId = body.ItemName.replace(/\s/g,"")+ uuid.v4();
 
-    // var params = {
-    //   Bucket: "s3-bucket-s3bucket-1wjvsaapgbhy2",
-    //   Key: body.name,
-    //   Body: body.frontPhoto,
-    // };
+    if(body.Image1){
+      s3 = new AWS.S3();
 
-    // s3.upload(params, function (err, data) {
-    //   if (err) {
-    //     res.send({ error: err });
-    //   }
-    //   if (data) {
-    //     res.status(200);
-    //     return {
-    //       statusCode: 200,
-    //       body: JSON.stringify({ message: "Product added successfully" }),
-    //     };
-    //   }
-    // });
+      var presignedPUTURL = s3.getSignedUrl('putObject', {
+        Bucket: 's3-bucket-s3bucket-1wjvsaapgbhy2',
+        Key: body.ItemId+"-front", //filename
+        Expires: 500 //time to expire in seconds
+      });
+      body.Image1 = presignedPUTURL;
+      res.Image1 = presignedPUTURL;
+    }
 
-    var presignedPUTURL = s3.getSignedUrl('putObject', {
-      Bucket: 's3-bucket-s3bucket-1wjvsaapgbhy2',
-      Key: body.name, //filename
-      Expires: 500 //time to expire in seconds
+    if(body.Image2){
+      var presignedPUTURL = s3.getSignedUrl('putObject', {
+        Bucket: 's3-bucket-s3bucketingreds-ydw7cqk3z7ig',
+        Key: body.ItemId+"-ingred", //filename
+        Expires: 500 //time to expire in seconds
+      });
+      body.Image2 = presignedPUTURL;
+      res.Image2 = presignedPUTURL;
+
+    }
+    body.Visible = false;
+    body.ItemId = body.ItemName.replace(/\s/g,"")+ uuid.v4();
+    body.ItemType = "#";
+
+    var ddb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
+    
+    var params = {
+      TableName: 'Items',
+      Item: AWS.DynamoDB.Converter.marshall(body)
+  };
+      ddb.putItem(params, function(err,data){
+        if(err){
+            throw err;
+        }
+        else
+        {
+          res.data = data;
+          return {
+            statusCode: 200,
+            body: JSON.stringify(res),
+          };        
+        }
     });
-    // try {
-    //   const aExpense = new textract.AnalyzeDocumentCommand(params);
-    //   console.log("aexpense");
-    //   const response = await textractClient.send(aExpense);
-    //   console.log("response");
-    //   console.log(response)
-    //   response.ExpenseDocuments.forEach((doc) => {
-    //     doc.LineItemGroups.forEach((items) => {
-    //       items.LineItems.forEach((fields) => {
-    //         fields.LineItemExpenseFields.forEach((expenseFields) => {
-    //           console.log(expenseFields);
-    //         });
-    //       });
-    //     });
-    //   });
-    //   // return response; // For unit tests.
-    // } catch (err) {
-    //   console.log("Error", err);
-    // }
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ url: presignedPUTURL }),
-    };
+    
   } catch (error) {
-    console.log(error);
-    const message = error.message ? error.message : "Internal server error";
+      console.log(error);
+      const message = error.message ? error.message : "Internal server error";
     return { statusCode: 500, body: JSON.stringify({ message: message }) };
   }
 };
 
+const validateData = (data) => {
+  const schema = {
+    type: "object",
+    properties: {
+      ItemName: {type: "string"},
+      Image1: {type: "boolean"},
+      Image2:{type:"boolean"},
+      User:{type:"string"},
+      ItemInfo:{type:"string"},
+      Location:{type:"string"}
+    },
+    required: ["ItemName","User"],
+    additionalProperties: false
+
+  };
+  const validate = ajv.compile(schema)
+  const valid = validate(data)
+  if (!valid) throw validate.errors;
+  return true;
+}
 module.exports = addProduct;
