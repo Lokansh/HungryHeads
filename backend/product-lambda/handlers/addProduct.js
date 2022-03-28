@@ -22,7 +22,7 @@ const addProduct = async (event) => {
 
       var presignedPUTURL = s3.getSignedUrl('putObject', {
         Bucket: 's3-bucket-s3bucket-1wjvsaapgbhy2',
-        Key: body.ItemId+"-front", //filename
+        Key: body.ItemId, //filename
         Expires: 500 //time to expire in seconds
       });
       body.Image1 = presignedPUTURL;
@@ -33,7 +33,7 @@ const addProduct = async (event) => {
 
       var presignedPUTURL = s3.getSignedUrl('putObject', {
         Bucket: 's3-bucket-s3bucketingreds-ydw7cqk3z7ig',
-        Key: body.ItemId+"-ingred", //filename
+        Key: body.ItemId, //filename
         Expires: 500 //time to expire in seconds
       });
       body.Image2 = presignedPUTURL;
@@ -41,7 +41,6 @@ const addProduct = async (event) => {
 
     }
     body.Visible = false;
-    body.ItemId = body.ItemName.replace(/\s/g,"")+ uuid.v4();
     body.ItemType = "#";
 
     var ddb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
