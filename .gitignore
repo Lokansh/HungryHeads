@@ -44,3 +44,5 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+backend/product-lambda/Prod-lambdaFunc.zip
+backend/ingred-lambda/Ingred-lambdaFunc.zip

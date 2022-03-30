@@ -1,16 +1,17 @@
 {
-  "name": "user-lambda",
+  "name": "product-lambda",
   "version": "1.0.0",
-  "description": "user management lambda",
+  "description": "product management lambda",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Prashit Patel",
+  "author": "Prashit Patel, Manan Amin",
   "license": "ISC",
   "dependencies": {
-    "@aws-sdk/client-textract": "^3.55.0",
+    "ajv": "^8.11.0",
     "aws-sdk": "^2.1087.0",
-    "multiparty": "^4.2.3"
+    "multiparty": "^4.2.3",
+    "uuid": "^8.3.2"
   }
 }

@@ -1,0 +1,174 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Create S3 bucket Database to store images for HungryHeads App",
+    "Parameters":{
+        "S3BucketName":{
+           "Type":"String",
+           "Default":"s3-bucket-s3bucketingreds-ydw7cqk3z7ig"
+        }
+     },
+    "Resources": {        
+        "s3Bucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "AccessControl": "AuthenticatedRead",
+                "PublicAccessBlockConfiguration": {
+                    "BlockPublicAcls": true,
+                    "BlockPublicPolicy": true,
+                    "IgnorePublicAcls": true,
+                    "RestrictPublicBuckets": true
+                }
+            }
+        },
+        "s3BucketIngreds": {
+            "Type": "AWS::S3::Bucket",
+            "DependsOn": "InvokePermission",
+            "Properties": {
+                "AccessControl": "AuthenticatedRead",
+                "PublicAccessBlockConfiguration": {
+                    "BlockPublicAcls": true,
+                    "BlockPublicPolicy": true,
+                    "IgnorePublicAcls": true,
+                    "RestrictPublicBuckets": true
+                },
+                "NotificationConfiguration":{
+                    "LambdaConfigurations":[
+                       {
+                          "Event":"s3:ObjectCreated:Put",
+                          "Function":{
+                            "Fn::GetAtt": ["IngredLambdaFunction", "Arn"]
+                        }
+                       }
+                    ]
+                 }
+                }
+            },
+        "InvokePermission":{
+            "Type":"AWS::Lambda::Permission",
+            "DependsOn":"IngredLambdaFunction",
+            "Properties":{
+               "FunctionName":{
+                  "Fn::GetAtt":[
+                     "IngredLambdaFunction",
+                     "Arn"
+                  ]
+               },
+               "Action":"lambda:InvokeFunction",
+               "Principal":"s3.amazonaws.com",
+               "SourceArn":{
+                  "Fn::Sub":"arn:aws:s3:::${S3BucketName}"
+               }
+            }
+         },
+         "IngredLambdaFunction":{
+            "Type":"AWS::Lambda::Function",
+            "Properties":{
+                "Code": {
+                    "ZipFile": "exports.handler = async (event) => {\nconst response = {\nstatusCode: 200,\nbody: JSON.stringify('Hello from Lambda!'),\n};\nreturn response;\n};"
+                  },
+                "FunctionName":"ingred-lambda",
+                "Role": {
+                    "Fn::GetAtt": ["IngredsLambdaExecutionRole", "Arn"]
+                }, 
+                "Runtime":"nodejs14.x",
+                "Handler": "index.handler"
+            }
+         },
+        "IngredsLambdaExecutionRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "RoleName": "IngredsLambdaExecutionRole",
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": "lambda.amazonaws.com"
+                    },
+                    "Action": "sts:AssumeRole"
+                  }
+                ]
+              },
+              "ManagedPolicyArns": [
+                "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+                "arn:aws:iam::aws:policy/AmazonTextractFullAccess",
+                "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+              ],
+              "Policies": [
+                {
+                    "PolicyName": "dynamo-access",
+                    "PolicyDocument": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                          {
+                            "Effect": "Allow",
+                            "Action": [
+                              "dynamodb:BatchGet*",
+                              "dynamodb:DescribeStream",
+                              "dynamodb:DescribeTable",
+                              "dynamodb:Get*",
+                              "dynamodb:Query",
+                              "dynamodb:Scan",
+                              "dynamodb:BatchWrite*",
+                              "dynamodb:CreateTable",
+                              "dynamodb:Delete*",
+                              "dynamodb:Update*",
+                              "dynamodb:PutItem"
+                            ],
+                            "Resource": "arn:aws:dynamodb:*:*:table/Items"
+                          },
+                          {
+                            "Effect": "Allow",
+                            "Action": [
+                              "dynamodb:BatchGet*",
+                              "dynamodb:DescribeStream",
+                              "dynamodb:DescribeTable",
+                              "dynamodb:Get*",
+                              "dynamodb:Query",
+                              "dynamodb:Scan",
+                              "dynamodb:BatchWrite*",
+                              "dynamodb:CreateTable",
+                              "dynamodb:Delete*",
+                              "dynamodb:Update*",
+                              "dynamodb:PutItem"
+                            ],
+                            "Resource": "arn:aws:dynamodb:*:*:table/UserHistory"
+                          },
+                          {
+                            "Effect": "Allow",
+                            "Action": [
+                                "textract:DetectDocumentText",
+                                "textract:AnalyzeDocument"
+                            ],
+                            "Resource": "*"
+                        },
+                        {
+                          "Action": [
+                            "s3:GetObject"
+                          ],
+                          "Effect": "Allow",
+                          "Resource": [
+                            "*"
+                          ]
+                        }
+                
+
+                        ]
+                    }
+                }
+                ]
+            }
+        }
+    },
+    "Outputs": {
+        "FrontBucketname": {
+            "Description": "Bucket for Product Picture",
+            "Value": {"Ref" : "s3Bucket"}
+        },
+        "IngredBucketname": {
+            "Description": "Bucket for Ingredients Pics",
+            "Value": {"Ref" : "s3BucketIngreds"}
+        }
+    }
+}

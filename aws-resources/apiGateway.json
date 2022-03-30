@@ -21,6 +21,71 @@
         ]
       }
     },
+    "ProductLambdaExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": "ProductLambdaExecutionRole",
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        ],
+        "Policies": [
+          {
+              "PolicyName": "dynamo-access",
+              "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "dynamodb:BatchGet*",
+                        "dynamodb:DescribeStream",
+                        "dynamodb:DescribeTable",
+                        "dynamodb:Get*",
+                        "dynamodb:Query",
+                        "dynamodb:Scan",
+                        "dynamodb:BatchWrite*",
+                        "dynamodb:CreateTable",
+                        "dynamodb:Delete*",
+                        "dynamodb:Update*",
+                        "dynamodb:PutItem"
+                      ],
+                      "Resource": "arn:aws:dynamodb:*:*:table/Items"
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "dynamodb:BatchGet*",
+                        "dynamodb:DescribeStream",
+                        "dynamodb:DescribeTable",
+                        "dynamodb:Get*",
+                        "dynamodb:Query",
+                        "dynamodb:Scan",
+                        "dynamodb:BatchWrite*",
+                        "dynamodb:CreateTable",
+                        "dynamodb:Delete*",
+                        "dynamodb:Update*",
+                        "dynamodb:PutItem"
+                      ],
+                      "Resource": "arn:aws:dynamodb:*:*:table/UserHistory"
+                    }
+                  ]
+              }
+          }
+      ]
+      }
+    },
     "UserManagementLambda": {
       "Type": "AWS::Lambda::Function",
       "Properties": {
@@ -42,7 +107,7 @@
           "ZipFile": "exports.handler = async (event) => {\nconst response = {\nstatusCode: 200,\nbody: JSON.stringify('Hello from Lambda!'),\n};\nreturn response;\n};"
         },
         "Role": {
-          "Fn::GetAtt": ["LambdaExecutionRole", "Arn"]
+          "Fn::GetAtt": ["ProductLambdaExecutionRole", "Arn"]
         },
         "Runtime": "nodejs14.x",
         "Handler": "index.handler",
@@ -387,14 +452,104 @@
         }
       }
     },
+    "RecommendProductResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": ["ProductResource", "ResourceId"]
+        },
+        "PathPart": "recommend",
+        "RestApiId": {
+          "Ref": "APIGateway"
+        }
+      }
+    },
+    "SearchProductResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": ["ProductResource", "ResourceId"]
+        },
+        "PathPart": "search",
+        "RestApiId": {
+          "Ref": "APIGateway"
+        }
+      }
+    },
+    "Authorizer": {
+      "Type": "AWS::ApiGateway::Authorizer",
+      "Properties": {
+          "AuthorizerResultTtlInSeconds": "300",
+          "Type": "COGNITO_USER_POOLS",
+          "ProviderARNs":[
+            "arn:aws:cognito-idp:us-east-1:182962509948:userpool/us-east-1_L62BPtSMc"
+          ],
+          "IdentitySource": "method.request.header.Auth",
+          "Name": "DefaultAuthorizer",
+          "RestApiId": {
+              "Ref": "APIGateway"
+          }
+      }
+  },
     "APIProductAddPost": {
       "Type": "AWS::ApiGateway::Method",
       "Properties": {
         "ApiKeyRequired": true,
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId":{
+          "Ref":"Authorizer"
+        },
         "HttpMethod": "POST",
         "ResourceId": {
           "Fn::GetAtt": ["AddProductResource", "ResourceId"]
+        },
+        "RestApiId": {
+          "Ref": "APIGateway"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Sub": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${ProductLambda.Arn}/invocations"
+          }
+        }
+      }
+    },
+    "APIProductRecommendPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "ApiKeyRequired": true,
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId":{
+          "Ref":"Authorizer"
+        },
+        "HttpMethod": "POST",
+        "ResourceId": {
+          "Fn::GetAtt": ["RecommendProductResource", "ResourceId"]
+        },
+        "RestApiId": {
+          "Ref": "APIGateway"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Sub": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${ProductLambda.Arn}/invocations"
+          }
+        }
+      }
+    },
+    "APIProductSearchPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "ApiKeyRequired": true,
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId":{
+          "Ref":"Authorizer"
+        },
+        "HttpMethod": "POST",
+        "ResourceId": {
+          "Fn::GetAtt": ["SearchProductResource", "ResourceId"]
         },
         "RestApiId": {
           "Ref": "APIGateway"
@@ -463,6 +618,14 @@
           {
             "HttpMethod" : "POST",
             "ResourcePath":"/api/product/add"
+          },
+          {
+            "HttpMethod" : "POST",
+            "ResourcePath":"/api/product/recommend"
+          },
+          {
+            "HttpMethod" : "POST",
+            "ResourcePath":"/api/product/search"
           }
         ]
       }

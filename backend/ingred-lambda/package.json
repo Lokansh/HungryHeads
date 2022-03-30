@@ -1,0 +1,16 @@
+{
+  "name": "ingred-lambda",
+  "version": "1.0.0",
+  "description": "product analysis lambda",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Manan Amin",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-textract": "^3.55.0",
+    "ajv": "^8.11.0",
+    "aws-sdk": "^2.1087.0"
+   }
+}
