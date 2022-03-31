@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-textract": "^3.55.0",
-    "ajv": "^8.11.0",
-    "aws-sdk": "^2.1087.0"
+    "aws-sdk": "^2.1087.0",
+    "ajv": "^8.11.0"
    }
 }
