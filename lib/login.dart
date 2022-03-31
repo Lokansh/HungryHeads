@@ -70,6 +70,8 @@ class Login extends StatelessWidget {
                       if (response.statusCode == 200) {
                         String accessToken =
                             body["AuthenticationResult"]["AccessToken"];
+                        String idToken =
+                        body["AuthenticationResult"]["IdToken"];
                         String name = body["Username"];
                         Navigator.push(
                           context,
@@ -77,7 +79,7 @@ class Login extends StatelessWidget {
                             builder: (context) => Home(
                                 username: name,
                                 email: emailController.text,
-                                accessToken: accessToken),
+                                accessToken: accessToken, idToken: idToken,),
                           ),
                         );
                       } else if (response.statusCode == 500 &&
