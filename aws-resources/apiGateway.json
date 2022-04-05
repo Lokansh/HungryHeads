@@ -42,48 +42,48 @@
         ],
         "Policies": [
           {
-              "PolicyName": "dynamo-access",
-              "PolicyDocument": {
-                  "Version": "2012-10-17",
-                  "Statement": [
-                    {
-                      "Effect": "Allow",
-                      "Action": [
-                        "dynamodb:BatchGet*",
-                        "dynamodb:DescribeStream",
-                        "dynamodb:DescribeTable",
-                        "dynamodb:Get*",
-                        "dynamodb:Query",
-                        "dynamodb:Scan",
-                        "dynamodb:BatchWrite*",
-                        "dynamodb:CreateTable",
-                        "dynamodb:Delete*",
-                        "dynamodb:Update*",
-                        "dynamodb:PutItem"
-                      ],
-                      "Resource": "arn:aws:dynamodb:*:*:table/Items"
-                    },
-                    {
-                      "Effect": "Allow",
-                      "Action": [
-                        "dynamodb:BatchGet*",
-                        "dynamodb:DescribeStream",
-                        "dynamodb:DescribeTable",
-                        "dynamodb:Get*",
-                        "dynamodb:Query",
-                        "dynamodb:Scan",
-                        "dynamodb:BatchWrite*",
-                        "dynamodb:CreateTable",
-                        "dynamodb:Delete*",
-                        "dynamodb:Update*",
-                        "dynamodb:PutItem"
-                      ],
-                      "Resource": "arn:aws:dynamodb:*:*:table/UserHistory"
-                    }
-                  ]
-              }
+            "PolicyName": "dynamo-access",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "dynamodb:BatchGet*",
+                    "dynamodb:DescribeStream",
+                    "dynamodb:DescribeTable",
+                    "dynamodb:Get*",
+                    "dynamodb:Query",
+                    "dynamodb:Scan",
+                    "dynamodb:BatchWrite*",
+                    "dynamodb:CreateTable",
+                    "dynamodb:Delete*",
+                    "dynamodb:Update*",
+                    "dynamodb:PutItem"
+                  ],
+                  "Resource": "arn:aws:dynamodb:*:*:table/Items"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "dynamodb:BatchGet*",
+                    "dynamodb:DescribeStream",
+                    "dynamodb:DescribeTable",
+                    "dynamodb:Get*",
+                    "dynamodb:Query",
+                    "dynamodb:Scan",
+                    "dynamodb:BatchWrite*",
+                    "dynamodb:CreateTable",
+                    "dynamodb:Delete*",
+                    "dynamodb:Update*",
+                    "dynamodb:PutItem"
+                  ],
+                  "Resource": "arn:aws:dynamodb:*:*:table/UserHistory"
+                }
+              ]
+            }
           }
-      ]
+        ]
       }
     },
     "UserManagementLambda": {
@@ -476,28 +476,64 @@
         }
       }
     },
+    "AddWishlistProductResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": ["ProductResource", "ResourceId"]
+        },
+        "PathPart": "addWishlist",
+        "RestApiId": {
+          "Ref": "APIGateway"
+        }
+      }
+    },
+    "GetWishlistProductResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": ["ProductResource", "ResourceId"]
+        },
+        "PathPart": "getWishlist",
+        "RestApiId": {
+          "Ref": "APIGateway"
+        }
+      }
+    },
+    "DeleteWishlistProductResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": ["ProductResource", "ResourceId"]
+        },
+        "PathPart": "deleteWishlist",
+        "RestApiId": {
+          "Ref": "APIGateway"
+        }
+      }
+    },
     "Authorizer": {
       "Type": "AWS::ApiGateway::Authorizer",
       "Properties": {
-          "AuthorizerResultTtlInSeconds": "300",
-          "Type": "COGNITO_USER_POOLS",
-          "ProviderARNs":[
-            "arn:aws:cognito-idp:us-east-1:182962509948:userpool/us-east-1_L62BPtSMc"
-          ],
-          "IdentitySource": "method.request.header.Auth",
-          "Name": "DefaultAuthorizer",
-          "RestApiId": {
-              "Ref": "APIGateway"
-          }
+        "AuthorizerResultTtlInSeconds": "300",
+        "Type": "COGNITO_USER_POOLS",
+        "ProviderARNs": [
+          "arn:aws:cognito-idp:us-east-1:182962509948:userpool/us-east-1_L62BPtSMc"
+        ],
+        "IdentitySource": "method.request.header.Auth",
+        "Name": "DefaultAuthorizer",
+        "RestApiId": {
+          "Ref": "APIGateway"
+        }
       }
-  },
+    },
     "APIProductAddPost": {
       "Type": "AWS::ApiGateway::Method",
       "Properties": {
         "ApiKeyRequired": true,
         "AuthorizationType": "COGNITO_USER_POOLS",
-        "AuthorizerId":{
-          "Ref":"Authorizer"
+        "AuthorizerId": {
+          "Ref": "Authorizer"
         },
         "HttpMethod": "POST",
         "ResourceId": {
@@ -520,8 +556,8 @@
       "Properties": {
         "ApiKeyRequired": true,
         "AuthorizationType": "COGNITO_USER_POOLS",
-        "AuthorizerId":{
-          "Ref":"Authorizer"
+        "AuthorizerId": {
+          "Ref": "Authorizer"
         },
         "HttpMethod": "POST",
         "ResourceId": {
@@ -544,12 +580,84 @@
       "Properties": {
         "ApiKeyRequired": true,
         "AuthorizationType": "COGNITO_USER_POOLS",
-        "AuthorizerId":{
-          "Ref":"Authorizer"
+        "AuthorizerId": {
+          "Ref": "Authorizer"
+        },
+        "HttpMethod": "GET",
+        "ResourceId": {
+          "Fn::GetAtt": ["SearchProductResource", "ResourceId"]
+        },
+        "RestApiId": {
+          "Ref": "APIGateway"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Sub": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${ProductLambda.Arn}/invocations"
+          }
+        }
+      }
+    },
+    "APIProductAddWishlistPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "ApiKeyRequired": true,
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId": {
+          "Ref": "Authorizer"
         },
         "HttpMethod": "POST",
         "ResourceId": {
-          "Fn::GetAtt": ["SearchProductResource", "ResourceId"]
+          "Fn::GetAtt": ["AddWishlistProductResource", "ResourceId"]
+        },
+        "RestApiId": {
+          "Ref": "APIGateway"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Sub": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${ProductLambda.Arn}/invocations"
+          }
+        }
+      }
+    },
+    "APIProductGetWishlistPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "ApiKeyRequired": true,
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId": {
+          "Ref": "Authorizer"
+        },
+        "HttpMethod": "GET",
+        "ResourceId": {
+          "Fn::GetAtt": ["GetWishlistProductResource", "ResourceId"]
+        },
+        "RestApiId": {
+          "Ref": "APIGateway"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Sub": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${ProductLambda.Arn}/invocations"
+          }
+        }
+      }
+    },
+    "APIProductDeleteWishlistPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "ApiKeyRequired": true,
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId": {
+          "Ref": "Authorizer"
+        },
+        "HttpMethod": "POST",
+        "ResourceId": {
+          "Fn::GetAtt": ["DeleteWishlistProductResource", "ResourceId"]
         },
         "RestApiId": {
           "Ref": "APIGateway"
@@ -584,48 +692,60 @@
         },
         "MethodSettings": [
           {
-            "HttpMethod" : "POST",
-            "ResourcePath":"/api/user/signup"
+            "HttpMethod": "POST",
+            "ResourcePath": "/api/user/signup"
           },
           {
-            "HttpMethod" : "POST",
-            "ResourcePath":"/api/user/verification"
+            "HttpMethod": "POST",
+            "ResourcePath": "/api/user/verification"
           },
           {
-            "HttpMethod" : "POST",
-            "ResourcePath":"/api/user/login"
+            "HttpMethod": "POST",
+            "ResourcePath": "/api/user/login"
           },
           {
-            "HttpMethod" : "POST",
-            "ResourcePath":"/api/user/forgotPassword"
+            "HttpMethod": "POST",
+            "ResourcePath": "/api/user/forgotPassword"
           },
           {
-            "HttpMethod" : "POST",
-            "ResourcePath":"/api/user/confirmForgotPassword"
+            "HttpMethod": "POST",
+            "ResourcePath": "/api/user/confirmForgotPassword"
           },
           {
-            "HttpMethod" : "POST",
-            "ResourcePath":"/api/user/resendCode"
+            "HttpMethod": "POST",
+            "ResourcePath": "/api/user/resendCode"
           },
           {
-            "HttpMethod" : "POST",
-            "ResourcePath":"/api/user/logout"
+            "HttpMethod": "POST",
+            "ResourcePath": "/api/user/logout"
           },
           {
-            "HttpMethod" : "POST",
-            "ResourcePath":"/api/user/changePassword"
+            "HttpMethod": "POST",
+            "ResourcePath": "/api/user/changePassword"
           },
           {
-            "HttpMethod" : "POST",
-            "ResourcePath":"/api/product/add"
+            "HttpMethod": "POST",
+            "ResourcePath": "/api/product/add"
           },
           {
-            "HttpMethod" : "POST",
-            "ResourcePath":"/api/product/recommend"
+            "HttpMethod": "POST",
+            "ResourcePath": "/api/product/recommend"
           },
           {
-            "HttpMethod" : "POST",
-            "ResourcePath":"/api/product/search"
+            "HttpMethod": "GET",
+            "ResourcePath": "/api/product/search"
+          },
+          {
+            "HttpMethod": "POST",
+            "ResourcePath": "/api/product/addWishlist"
+          },
+          {
+            "HttpMethod": "GET",
+            "ResourcePath": "/api/product/getWishlist"
+          },
+          {
+            "HttpMethod": "POST",
+            "ResourcePath": "/api/product/putWishlist"
           }
         ]
       }
