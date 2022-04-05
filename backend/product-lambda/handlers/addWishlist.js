@@ -12,7 +12,7 @@ const addWishlist = async (event) => {
       secretAccessKey: "d6waIXEGNfm4qd3b96U4M+Bx3p9vodhylVYQzVym",
     };
     body.WishlistId =
-      body.UserId.replace(/\s/g, "") + body.ItemId.replace(/\s/g, "");
+      body.User.replace(/\s/g, "") + body.ItemId.replace(/\s/g, "");
 
     var dynamoDB = new AWS.DynamoDB({ apiVersion: "2012-08-10" });
 
@@ -34,10 +34,15 @@ const validateData = (data) => {
   const schema = {
     type: "object",
     properties: {
+      User: { type: "string" },
       ItemId: { type: "string" },
-      UserId: { type: "string" },
+      // ItemType: { type: "string" },
+      // Image1: { type: "string" },
+      // Image2: { type: "string" },
+      // ItemName: { type: "string" },
+      // Ingreds: { type: "string" },
     },
-    required: ["ItemId", "UserId"],
+    required: ["ItemId", "User"],
     additionalProperties: false,
   };
   const validate = ajv.compile(schema);

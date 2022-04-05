@@ -655,7 +655,7 @@
         "AuthorizerId": {
           "Ref": "Authorizer"
         },
-        "HttpMethod": "POST",
+        "HttpMethod": "DELETE",
         "ResourceId": {
           "Fn::GetAtt": ["DeleteWishlistProductResource", "ResourceId"]
         },
@@ -745,7 +745,7 @@
           },
           {
             "HttpMethod": "POST",
-            "ResourcePath": "/api/product/putWishlist"
+            "ResourcePath": "/api/product/deleteWishlist"
           }
         ]
       }

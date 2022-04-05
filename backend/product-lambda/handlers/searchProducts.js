@@ -14,8 +14,13 @@ const searchProducts = async (event) => {
     if (name != null) {
       var params = {
         TableName: "Items",
+        ProjectionExpression:
+          "ItemType, Image1, Image2, ItemName, ItemId, #usr, Ingreds",
         FilterExpression:
           "(contains (ItemName, :name) OR contains (ItemType, :category)) AND Visible = :visible",
+        ExpressionAttributeNames: {
+          "#usr": "User",
+        },
         ExpressionAttributeValues: {
           ":name": { S: name },
           ":category": { S: name },
