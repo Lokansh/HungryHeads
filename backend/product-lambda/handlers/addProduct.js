@@ -14,11 +14,10 @@ const addProduct = async (event) => {
       "accessKeyId": "AKIASVGLKLB6K6EQAUPJ",
       "secretAccessKey": "d6waIXEGNfm4qd3b96U4M+Bx3p9vodhylVYQzVym"
     };
-    var s3,res={};
+    var s3 =new AWS.S3(),res={};
     body.ItemId = body.ItemName.replace(/\s/g,"")+ uuid.v4();
 
     if(body.Image1){
-      s3 = new AWS.S3();
 
       var presignedPUTURL = s3.getSignedUrl('putObject', {
         Bucket: 's3-bucket-s3bucket-1wjvsaapgbhy2',
@@ -30,7 +29,6 @@ const addProduct = async (event) => {
     }
 
     if(body.Image2){
-
       var presignedPUTURL = s3.getSignedUrl('putObject', {
         Bucket: 's3-bucket-s3bucketingreds-ydw7cqk3z7ig',
         Key: body.ItemId, //filename

@@ -49,10 +49,10 @@ module.exports.handler = async (event) => {
             }
         };
 
-        var data = await db.getItem(params2).promise();
+        var data1 = await db.getItem(params2).promise();
 
-        if(data){
-            realData= AWS.DynamoDB.Converter.unmarshall(data.Item);
+        if(data1){
+            realData= AWS.DynamoDB.Converter.unmarshall(data1.Item);
             realData.Visible = true;
             realData.Ingreds = ingreds;
 
@@ -81,7 +81,7 @@ const getIngreds = (res)=>{
         var con ="";
         res.Blocks.forEach(block => {
             
-            if(block.BlockType=="WORD" & block.TextType=="PRINTED" & block.Confidence > 90){
+            if(block.BlockType=="WORD" & block.TextType=="PRINTED" & block.Confidence > 70){
                 var word =block.Text.toUpperCase();
                 var cleanWord = word.replace(/[^a-zA-Z ]/g, "");
                 if(con){
