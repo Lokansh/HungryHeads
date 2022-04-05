@@ -5,7 +5,7 @@ const ajv = new Ajv(); // options can be passed, e.g. {allErrors: true}
 const addWishlist = async (event) => {
   try {
     const body = JSON.parse(event.body);
-    validateData(body);
+    //validateData(body);
 
     AWS.config.credentials = {
       accessKeyId: "AKIASVGLKLB6K6EQAUPJ",
@@ -30,25 +30,25 @@ const addWishlist = async (event) => {
   }
 };
 
-const validateData = (data) => {
-  const schema = {
-    type: "object",
-    properties: {
-      User: { type: "string" },
-      ItemId: { type: "string" },
-      // ItemType: { type: "string" },
-      // Image1: { type: "string" },
-      // Image2: { type: "string" },
-      // ItemName: { type: "string" },
-      // Ingreds: { type: "string" },
-    },
-    required: ["ItemId", "User"],
-    additionalProperties: false,
-  };
-  const validate = ajv.compile(schema);
-  const valid = validate(data);
-  if (!valid) throw validate.errors;
-  return true;
-};
+// const validateData = (data) => {
+//   const schema = {
+//     type: "object",
+//     properties: {
+//       User: { type: "string" },
+//       ItemId: { type: "string" },
+//       // ItemType: { type: "string" },
+//       // Image1: { type: "string" },
+//       // Image2: { type: "string" },
+//       // ItemName: { type: "string" },
+//       // Ingreds: { type: "string" },
+//     },
+//     required: ["ItemId", "User"],
+//     additionalProperties: false,
+//   };
+//   const validate = ajv.compile(schema);
+//   const valid = validate(data);
+//   if (!valid) throw validate.errors;
+//   return true;
+// };
 
 module.exports = addWishlist;
