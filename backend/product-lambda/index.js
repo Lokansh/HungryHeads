@@ -5,7 +5,6 @@ const getWishlist = require("./handlers/getWishlist");
 const deleteWishlist = require("./handlers/deleteWishlist");
 
 module.exports.handler = async (event) => {
-  console.log("Index.js", event);
   switch (event["path"]) {
     case "/api/product/add":
       const addResponse = addProduct(event);
