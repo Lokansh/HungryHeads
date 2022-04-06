@@ -3,7 +3,13 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ProductDesc extends StatefulWidget {
-  const ProductDesc({Key? key, required this.productDetails, required this.idToken, required this.username, required this.favourite}) : super(key: key);
+  const ProductDesc(
+      {Key? key,
+      required this.productDetails,
+      required this.idToken,
+      required this.username,
+      required this.favourite})
+      : super(key: key);
 
   final String idToken;
   final Map<String, dynamic> productDetails;
@@ -22,7 +28,7 @@ class _ProductDescState extends State<ProductDesc> {
     // TODO: implement initState
     super.initState();
     setState(() {
-      favourite= widget.favourite;
+      favourite = widget.favourite;
     });
   }
 
@@ -31,7 +37,32 @@ class _ProductDescState extends State<ProductDesc> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       // appBar: AppBar(title: Text(widget.productDetails["ItemName"])),
-      appBar: AppBar(title: Text(widget.productDetails["ItemName"])),
+      appBar: AppBar(
+        title: Text(widget.productDetails["ItemName"]),
+        actions: [
+          IconButton(
+            icon: favourite
+                ? Icon(Icons.favorite, color: Colors.red)
+                : Icon(Icons.favorite_border),
+            onPressed: () async {
+              var details = widget.productDetails;
+              details["UserId"] = widget.username;
+              if (favourite == true) {
+                final response = await removeFromWishlist(widget.idToken, {
+                  "wishlistId":
+                      widget.username + widget.productDetails["ItemId"]
+                });
+              } else {
+                final response =
+                    await addToWishlist(widget.idToken, widget.productDetails);
+              }
+              setState(() {
+                favourite = !favourite;
+              });
+            },
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Center(
           child: Column(
@@ -71,25 +102,20 @@ class _ProductDescState extends State<ProductDesc> {
                   ),
                 ],
               ),
-              IconButton(
-                icon: favourite
-                    ? Icon(Icons.favorite, color: Colors.red)
-                    : Icon(Icons.favorite_border),
-                onPressed: () async {
-                  var details = widget.productDetails;
-                  details["UserId"] = widget.username;
-                  if(favourite == true) {
-                    final response = await removeFromWishlist(widget.idToken,
-                        {"wishlistId": widget.username+widget.productDetails["ItemId"]});
-                  } else {
-                    final response = await addToWishlist(widget.idToken, widget.productDetails);
-                  }
-                  setState(() {
-                    favourite=!favourite;
-                  });
-
-
-                },
+              Column(
+                children: [
+                  Text("Added by",
+                      style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black54)),
+                  Text(widget.productDetails["User"],
+                      style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.blueAccent)),
+                  // Text(widget.productDetails["ItemType"], style: TextStyle(fontSize: 25, fontWeight: FontWeight.w700, color: Colors.blueAccent)),
+                ],
               ),
             ],
           ),
@@ -99,8 +125,7 @@ class _ProductDescState extends State<ProductDesc> {
   }
 }
 
-Future<http.Response> addToWishlist(
-    String idToken, Object body) {
+Future<http.Response> addToWishlist(String idToken, Object body) {
   return http.post(
       Uri.parse(
           'https://q6ed0onbpd.execute-api.us-east-1.amazonaws.com/dev/api/product/addWishlist'),
@@ -116,11 +141,11 @@ Future<http.Response> removeFromWishlist(
     String idToken, Map<String, dynamic> params) {
   return http.delete(
       Uri.parse(
-          'https://q6ed0onbpd.execute-api.us-east-1.amazonaws.com/dev/api/product/deleteWishlist').replace(queryParameters: params),
+              'https://q6ed0onbpd.execute-api.us-east-1.amazonaws.com/dev/api/product/deleteWishlist')
+          .replace(queryParameters: params),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'x-api-key': 'c5ec1kyeAD1GADOf9l1qR7lBJOjC8WSK26ryi0lE',
         'Auth': idToken
-      }
-  );
+      });
 }

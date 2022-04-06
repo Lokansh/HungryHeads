@@ -125,7 +125,7 @@ class _HomeState extends State<Home> {
         selectedItemColor: Colors.red,
         onTap: _onItemTapped,
       ),
-      floatingActionButton: _selectedIndex == 0 ? _buildFab(context) : null,
+      // floatingActionButton: _selectedIndex == 0 ? _buildFab(context) : null,
     );
   }
 }
@@ -142,23 +142,23 @@ Future<http.Response> logout(Object body) {
   );
 }
 
-Widget _buildFab(BuildContext context) {
-  final buttons = [ _elevateButton(context, "Vegan"), _elevateButton(context, "Non-Veg"), _elevateButton(context, "Veg") ];
-  return FabWithIcons(
-    button: buttons,
-    onButtonTapped: (index) {},
-  );
-}
-
-Widget _elevateButton(BuildContext context, String label) {
-  return SizedBox(
-    width: 200,
-    child: ElevatedButton(
-      style: ElevatedButton.styleFrom(primary: Colors.blueAccent),
-      onPressed: () async{
-
-      },
-      child: Text(label),
-    ),
-  );
-}
+// Widget _buildFab(BuildContext context) {
+//   final buttons = [ _elevateButton(context, "Vegan"), _elevateButton(context, "Non-Veg"), _elevateButton(context, "Veg") ];
+//   return FabWithIcons(
+//     button: buttons,
+//     onButtonTapped: (index) {},
+//   );
+// }
+//
+// Widget _elevateButton(BuildContext context, String label) {
+//   return SizedBox(
+//     width: double.infinity,
+//     child: ElevatedButton(
+//       style: ElevatedButton.styleFrom(primary: Colors.blueAccent),
+//       onPressed: () async{
+//
+//       },
+//       child: Text(label),
+//     ),
+//   );
+// }

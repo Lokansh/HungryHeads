@@ -18,6 +18,7 @@ class _ProductHomeState extends State<ProductHome> {
   TextEditingController searchController = TextEditingController();
 
   List items = [];
+  List dbItems = [];
 
   @override
   void initState() {
@@ -31,6 +32,7 @@ class _ProductHomeState extends State<ProductHome> {
     final body = jsonDecode(response.body) as List;
     setState(() {
       items = body;
+      dbItems = body;
     });
   }
 
@@ -44,28 +46,106 @@ class _ProductHomeState extends State<ProductHome> {
             Focus(
               child: TextField(
                 controller: searchController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   prefixIcon: Icon(Icons.search),
                   border: OutlineInputBorder(),
                   labelText: 'Search',
+                  suffixIcon: searchController.text.isEmpty
+                      ? null // Show nothing if the text field is empty
+                      : IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            searchController.clear();
+                            setState(() {});
+                            getItems();
+                          },
+                        ),
                 ),
               ),
               onFocusChange: (hasFocus) async {
                 if (!hasFocus) {
-                  final response = await search(
-                      widget.idToken, {"name": searchController.text, "userId": widget.username});
+                  final response = await search(widget.idToken, {
+                    "name": searchController.text,
+                    "userId": widget.username
+                  });
                   final body = jsonDecode(response.body) as List;
                   setState(() {
                     items = body;
+                    dbItems = body;
                   });
                 }
               },
             ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ActionChip(
+                    label: const Text('Veg'),
+                    onPressed: () {
+                      List filteredItems = dbItems
+                          .where(
+                              (element) => element["ItemType"] == "vegetarian")
+                          .toList();
+                      setState(() {
+                        items = filteredItems;
+                      });
+                    },
+                  ),
+                  ActionChip(
+                    label: const Text('Non-Veg'),
+                    onPressed: () {
+                      List filteredItems = dbItems
+                          .where((element) =>
+                              element["ItemType"] == "non-vegetarian")
+                          .toList();
+                      setState(() {
+                        items = filteredItems;
+                      });
+                    },
+                  ),
+                  ActionChip(
+                    label: const Text('Vegan'),
+                    onPressed: () {
+                      List filteredItems = dbItems
+                          .where((element) => element["ItemType"] == "vegan")
+                          .toList();
+                      setState(() {
+                        items = filteredItems;
+                      });
+                    },
+                  ),
+                  ActionChip(
+                    label: const Text('Egg'),
+                    onPressed: () {
+                      List filteredItems = dbItems
+                          .where((element) => element["ItemType"] == "egg")
+                          .toList();
+                      setState(() {
+                        items = filteredItems;
+                      });
+                    },
+                  ),
+                  ActionChip(
+                    label: const Text('Halal'),
+                    onPressed: () {
+                      List filteredItems = dbItems
+                          .where((element) => element["ItemType"] == "halal")
+                          .toList();
+                      setState(() {
+                        items = filteredItems;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
             SizedBox(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 16.0, 0, 0),
-                child: const Text(
-                  "Recommended",
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Text(
+                  searchController.text.isEmpty ? "Recommended" : "Results",
                   style: TextStyle(
                       fontSize: 20,
                       color: Colors.black54,
@@ -99,12 +179,16 @@ class _ProductHomeState extends State<ProductHome> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ProductDesc(idToken: widget.idToken,productDetails: item, username: widget.username, favourite: false,),
+                            builder: (context) => ProductDesc(
+                              idToken: widget.idToken,
+                              productDetails: item,
+                              username: widget.username,
+                              favourite: false,
+                            ),
                           ),
                         );
                       },
-                      leading:
-                          Image.network(item["Image1"].split("?")[0]),
+                      leading: Image.network(item["Image1"].split("?")[0]),
                     );
                   },
                 ),

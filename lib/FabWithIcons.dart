@@ -53,7 +53,7 @@ class FabWithIconsState extends State<FabWithIcons> with TickerProviderStateMixi
         child: FloatingActionButton(
           backgroundColor: backgroundColor,
           mini: true,
-          child: widget.button[index],
+          child: SizedBox(width: double.infinity,child: widget.button[index]),
           onPressed: () => _onTapped(index),
         ),
       ),

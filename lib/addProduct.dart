@@ -48,17 +48,17 @@ class AddProduct extends StatelessWidget {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-                  child: TextField(
-                    controller: notesController,
-                    decoration: const InputDecoration(
-                      prefixIcon: Icon(Icons.message),
-                      border: OutlineInputBorder(),
-                      labelText: 'Notes',
-                    ),
-                  ),
-                ),
+                // Padding(
+                //   padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                //   child: TextField(
+                //     controller: notesController,
+                //     decoration: const InputDecoration(
+                //       prefixIcon: Icon(Icons.message),
+                //       border: OutlineInputBorder(),
+                //       labelText: 'Notes',
+                //     ),
+                //   ),
+                // ),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: ElevatedButton(
@@ -150,8 +150,24 @@ class AddProduct extends StatelessWidget {
                         nameController.text = "";
                         showDialog(
                             context: context,
-                            builder: (context) => const ValidationAlert(
-                                message: "Product added successfully"));
+                            builder: (context) => AlertDialog(
+                                  title: const Text('Success'),
+                                  content: SingleChildScrollView(
+                                    child: ListBody(
+                                      children: [
+                                        Text("Product Added Successfully!"),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: const Text('Ok'),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ],
+                                ));
                       } else {
                         showDialog(
                             context: context,
@@ -204,4 +220,18 @@ Future<http.Response> getURL(String idToken, Object body) {
     },
     body: jsonEncode(body),
   );
+}
+
+
+Future<http.Response> removeFromWishlist(
+    String idToken, Map<String, dynamic> params) {
+  return http.delete(
+      Uri.parse(
+          'https://q6ed0onbpd.execute-api.us-east-1.amazonaws.com/dev/api/product/deleteWishlist')
+          .replace(queryParameters: params),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'x-api-key': 'c5ec1kyeAD1GADOf9l1qR7lBJOjC8WSK26ryi0lE',
+        'Auth': idToken
+      });
 }

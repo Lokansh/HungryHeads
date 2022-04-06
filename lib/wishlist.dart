@@ -71,6 +71,10 @@ class _WishlistState extends State<Wishlist> {
                         icon: Icon(Icons.favorite, color: Colors.red),
                             // : Icon(Icons.favorite_border),
                         onPressed: () async {
+                          final response = await removeFromWishlist(widget.idToken, {
+                            "wishlistId":
+                            widget.username + items[index]["ItemId"]
+                          });
                           //add to wishlist
                           setState(() {
                             items.removeAt(index);
