@@ -13,6 +13,7 @@ class Verification extends StatelessWidget {
   Widget build(BuildContext context) {
     TextEditingController codeController = TextEditingController();
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(title: const Text("Hungry Heads")),
       body: Padding(
         padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),

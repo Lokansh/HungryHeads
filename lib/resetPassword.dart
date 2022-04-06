@@ -16,6 +16,7 @@ class ResetPassword extends StatelessWidget {
     TextEditingController passwordController = TextEditingController();
     TextEditingController rePasswordController = TextEditingController();
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(title: const Text("Hungry Heads")),
       body: Padding(
         padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),

@@ -16,6 +16,7 @@ class Login extends StatelessWidget {
     TextEditingController emailController = TextEditingController();
     TextEditingController passwordController = TextEditingController();
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(title: const Text("Hungry Heads")),
       body: Padding(
         padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
@@ -70,14 +71,18 @@ class Login extends StatelessWidget {
                       if (response.statusCode == 200) {
                         String accessToken =
                             body["AuthenticationResult"]["AccessToken"];
+                        String idToken =
+                            body["AuthenticationResult"]["IdToken"];
                         String name = body["Username"];
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => Home(
-                                username: name,
-                                email: emailController.text,
-                                accessToken: accessToken),
+                              username: name,
+                              email: emailController.text,
+                              accessToken: accessToken,
+                              idToken: idToken,
+                            ),
                           ),
                         );
                       } else if (response.statusCode == 500 &&
@@ -116,7 +121,8 @@ class Login extends StatelessWidget {
                                     ],
                                   ));
                         } else {
-                          final resendCodeBody = jsonDecode(resendCodeResponse.body);
+                          final resendCodeBody =
+                              jsonDecode(resendCodeResponse.body);
                           showDialog(
                               context: context,
                               builder: (context) => ValidationAlert(

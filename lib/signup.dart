@@ -15,6 +15,7 @@ class SignUp extends StatelessWidget {
     TextEditingController passwordController = TextEditingController();
     TextEditingController rePasswordController = TextEditingController();
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text('New Registration'),
       ),
@@ -125,22 +126,22 @@ class SignUp extends StatelessWidget {
               ],
             ),
           ),
-          Column(
-            children: [
-              SignInButton(
-                Buttons.GoogleDark,
-                onPressed: () {},
-              ),
-              SignInButton(
-                Buttons.AppleDark,
-                onPressed: () {},
-              ),
-              SignInButton(
-                Buttons.Facebook,
-                onPressed: () {},
-              ),
-            ],
-          ),
+          // Column(
+          //   children: [
+          //     SignInButton(
+          //       Buttons.GoogleDark,
+          //       onPressed: () {},
+          //     ),
+          //     SignInButton(
+          //       Buttons.AppleDark,
+          //       onPressed: () {},
+          //     ),
+          //     SignInButton(
+          //       Buttons.Facebook,
+          //       onPressed: () {},
+          //     ),
+          //   ],
+          // ),
         ]),
       ),
     );
