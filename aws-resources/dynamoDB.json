@@ -1,127 +1,150 @@
 {
-    "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "AWS CloudFormation Template To Create a DynamoDB databases for HungryHeads App",
-    "Parameters": {
-        "ItemKeyElementName": {
-            "Type": "String",
-            "Default": "ItemId",
-            "Description": "ItemId as Primary Key "
-        },
-        "StringType": {
-            "Type": "String",
-            "Default": "S",
-            "Description": "String Type"
-        },
-        "ItemTypeKeyElementName":{
-            "Type":"String",
-            "Default":"ItemType",
-            "Description": "Sort key based on item category"
-        }
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "AWS CloudFormation Template To Create a DynamoDB databases for HungryHeads App",
+  "Parameters": {
+    "ItemKeyElementName": {
+      "Type": "String",
+      "Default": "ItemId",
+      "Description": "ItemId as Primary Key "
     },
-    "Resources": {
-        "ItemTable": {
-            "Type": "AWS::DynamoDB::Table",
-            "Properties": {
-                "TableName": "Items",
-                "AttributeDefinitions": [
-                    {
-                        "AttributeName": {
-                            "Ref": "ItemKeyElementName"
-                        },
-                        "AttributeType": {
-                            "Ref": "StringType"
-                        }
-                    },
-                    {
-                        "AttributeName": {
-                            "Ref": "ItemTypeKeyElementName"
-                        },
-                        "AttributeType": {
-                            "Ref": "StringType"
-                        }
-                    },
-                    {
-                        "AttributeName":"Location",
-                        "AttributeType":"S"
-                    }
-                ],
-                "KeySchema": [
-                    {
-                        "AttributeName": {
-                            "Ref": "ItemKeyElementName"
-                        },
-                        "KeyType": "HASH"
-                    },
-                    {
-                        "AttributeName": {
-                            "Ref": "ItemTypeKeyElementName"
-                        },
-                        "KeyType": "RANGE" 
-                    }
-                ],
-                "ProvisionedThroughput": {
-                    "ReadCapacityUnits": 10,
-                    "WriteCapacityUnits": 2
-                },
-                "LocalSecondaryIndexes" :[{
-                    "IndexName" : "ItemLocationIndex",
-                    "KeySchema" : [
-                      {
-                        "AttributeName" : "ItemId",
-                        "KeyType" : "HASH"
-                      },
-                      {
-                        "AttributeName" : "Location",
-                        "KeyType" : "RANGE"
-                      }
-                    ],                           
-                    "Projection" : {
-                      "NonKeyAttributes" : ["ItemName"],
-                      "ProjectionType" : "INCLUDE"
-                    }
-                  }]
-            },
-            "DeletionPolicy" : "Retain"
-
-        },
-        "UserHistoryTable": {
-            "Type": "AWS::DynamoDB::Table",
-            "Properties": {
-                "TableName": "UserHistory",
-                "AttributeDefinitions": [
-                    {
-                        "AttributeName":"UserId",
-                        "AttributeType":"S"
-                    }
-                ],
-                "KeySchema": [
-                    {
-                        "AttributeName": "UserId",
-                        "KeyType": "HASH"
-                    }
-                ],
-                "ProvisionedThroughput": {
-                    "ReadCapacityUnits": 2,
-                    "WriteCapacityUnits": 2
-                }
-            },
-            "DeletionPolicy" : "Retain"
-
-        }
+    "StringType": {
+      "Type": "String",
+      "Default": "S",
+      "Description": "String Type"
     },
-    
-    "Outputs": {
-        "Item": {
-            "Description": "DynamoDB Items Table using DynamoDB",
-            "Value": {
-                "Ref": "ItemTable"
-            }
-        },
-        "UserHistory": {
-            "Description": "DynamoDB UserHistory Table using DynamoDB",
-            "Value": {
-                "Ref": "UserHistoryTable"
-            }
-        }
+    "ItemTypeKeyElementName": {
+      "Type": "String",
+      "Default": "ItemType",
+      "Description": "Sort key based on item category"
     }
+  },
+  "Resources": {
+    "ItemTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName": "Items",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": {
+              "Ref": "ItemKeyElementName"
+            },
+            "AttributeType": {
+              "Ref": "StringType"
+            }
+          },
+          {
+            "AttributeName": {
+              "Ref": "ItemTypeKeyElementName"
+            },
+            "AttributeType": {
+              "Ref": "StringType"
+            }
+          },
+          {
+            "AttributeName": "Location",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": {
+              "Ref": "ItemKeyElementName"
+            },
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": {
+              "Ref": "ItemTypeKeyElementName"
+            },
+            "KeyType": "RANGE"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 10,
+          "WriteCapacityUnits": 2
+        },
+        "LocalSecondaryIndexes": [
+          {
+            "IndexName": "ItemLocationIndex",
+            "KeySchema": [
+              {
+                "AttributeName": "ItemId",
+                "KeyType": "HASH"
+              },
+              {
+                "AttributeName": "Location",
+                "KeyType": "RANGE"
+              }
+            ],
+            "Projection": {
+              "NonKeyAttributes": ["ItemName"],
+              "ProjectionType": "INCLUDE"
+            }
+          }
+        ]
+      },
+      "DeletionPolicy": "Retain"
+    },
+    "UserHistoryTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName": "Wishlist",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "WishlistId",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "WishlistId",
+            "KeyType": "HASH"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 2,
+          "WriteCapacityUnits": 2
+        }
+      },
+      "DeletionPolicy": "Retain"
+    },
+    "RecommendationTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName": "Recommendation",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "RecommendId",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "RecommendId",
+            "KeyType": "HASH"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 2,
+          "WriteCapacityUnits": 2
+        }
+      },
+      "DeletionPolicy": "Retain"
+    }
+  },
+
+  "Outputs": {
+    "Item": {
+      "Description": "DynamoDB Items Table using DynamoDB",
+      "Value": {
+        "Ref": "ItemTable"
+      }
+    },
+    "UserHistory": {
+      "Description": "DynamoDB UserHistory Table using DynamoDB",
+      "Value": {
+        "Ref": "UserHistoryTable"
+      }
+    }
+  }
 }
