@@ -105,3 +105,18 @@ Future<http.Response> getWishlist(String idToken, String username) {
     },
   );
 }
+
+
+Future<http.Response> removeFromWishlist(
+    String idToken, Map<String, dynamic> params) {
+  return http.delete(
+      Uri.parse(
+          'https://q6ed0onbpd.execute-api.us-east-1.amazonaws.com/dev/api/product/deleteWishlist')
+          .replace(queryParameters: params),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'x-api-key': 'c5ec1kyeAD1GADOf9l1qR7lBJOjC8WSK26ryi0lE',
+        'Auth': idToken
+      });
+}
+

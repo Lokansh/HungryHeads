@@ -1,8 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:untitled/ExpandableFab.dart';
-import 'package:untitled/FabWithIcons.dart';
 import 'package:untitled/addProduct.dart';
 import 'package:untitled/producthome.dart';
 import 'package:untitled/widgets/ValidationAlert.dart';
@@ -125,7 +123,6 @@ class _HomeState extends State<Home> {
         selectedItemColor: Colors.red,
         onTap: _onItemTapped,
       ),
-      // floatingActionButton: _selectedIndex == 0 ? _buildFab(context) : null,
     );
   }
 }
@@ -141,24 +138,3 @@ Future<http.Response> logout(Object body) {
     body: jsonEncode(body),
   );
 }
-
-// Widget _buildFab(BuildContext context) {
-//   final buttons = [ _elevateButton(context, "Vegan"), _elevateButton(context, "Non-Veg"), _elevateButton(context, "Veg") ];
-//   return FabWithIcons(
-//     button: buttons,
-//     onButtonTapped: (index) {},
-//   );
-// }
-//
-// Widget _elevateButton(BuildContext context, String label) {
-//   return SizedBox(
-//     width: double.infinity,
-//     child: ElevatedButton(
-//       style: ElevatedButton.styleFrom(primary: Colors.blueAccent),
-//       onPressed: () async{
-//
-//       },
-//       child: Text(label),
-//     ),
-//   );
-// }
