@@ -38,25 +38,11 @@ const searchProducts = async (event) => {
     }
     const result = await dynamoDB.scan(params).promise();
 
-    // const s3 = new AWS.S3();
-    // try {
-    //   const params = {
-    //     Bucket: "s3-bucket-s3bucket-1wjvsaapgbhy2",
-    //     Key: "pastaacb1012e-6302-402c-b82e-e1c3bbdbb4b2",
-    //   };
+    const jsonResult = result.Items.map((item) =>
+      AWS.DynamoDB.Converter.unmarshall(item)
+    );
 
-    //   const data = await s3.getObject(params).promise();
-    //   console.log("data" + data);
-    //   console.log("data--stringify" + JSON.stringify(data));
-    //   //console.log("err" + err);
-    //   console.log("data.Location" + data.Location);
-    //   //return data.Body.toString('utf-8');
-    // } catch (e) {
-    //   throw new Error(`Could not retrieve file from S3: ${e.message}`);
-    // }
-
-    //console.log(JSON.stringify(result));
-    return { statusCode: 200, body: JSON.stringify(result) };
+    return { statusCode: 200, body: JSON.stringify(jsonResult) };
   } catch (error) {
     const message = error?.message ? error.message : "Internal server error";
     return { statusCode: 500, body: JSON.stringify({ message: message }) };
