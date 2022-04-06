@@ -126,22 +126,22 @@ class SignUp extends StatelessWidget {
               ],
             ),
           ),
-          Column(
-            children: [
-              SignInButton(
-                Buttons.GoogleDark,
-                onPressed: () {},
-              ),
-              SignInButton(
-                Buttons.AppleDark,
-                onPressed: () {},
-              ),
-              SignInButton(
-                Buttons.Facebook,
-                onPressed: () {},
-              ),
-            ],
-          ),
+          // Column(
+          //   children: [
+          //     SignInButton(
+          //       Buttons.GoogleDark,
+          //       onPressed: () {},
+          //     ),
+          //     SignInButton(
+          //       Buttons.AppleDark,
+          //       onPressed: () {},
+          //     ),
+          //     SignInButton(
+          //       Buttons.Facebook,
+          //       onPressed: () {},
+          //     ),
+          //   ],
+          // ),
         ]),
       ),
     );
