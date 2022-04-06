@@ -23,10 +23,9 @@
 	"pork-meat": "non-vegetarian",
 	"veal-fond": "non-vegetarian",
 	"oil-and-fat": "vegan",
-	"fat": "non-vegetarian",
 	"milkfat": "vegetarian",
 	"milk": "vegetarian",
-	"oil": "non-vegetarian",
+	"palm-oil": "vegetarian",
 	"animal-fat": "non-vegetarian",
 	"poultry-fat": "vegan",
 	"natural-flavouring": "non-vegetarian",
@@ -92,5 +91,6 @@
 	"bacon": "non-vegetarian",
 	"veal": "non-vegetarian",
 	"collagen": "non-vegetarian",
-	"eggs": "non-vegetarian"
+	"egg": "egg",
+	"chicken":"non-vegetarian"
 }
