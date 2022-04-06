@@ -9,37 +9,38 @@ import 'package:http/http.dart' as http;
 import 'package:untitled/widgets/ValidationAlert.dart';
 import 'package:camera/camera.dart';
 
-Future<void> upload(idToken) async {
-  // Ensure that plugin services are initialized so that `availableCameras()`
-  // can be called before `runApp()`
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Obtain a list of the available cameras on the device.
-  final cameras = await availableCameras();
-
-  // Get a specific camera from the list of available cameras.
-  final firstCamera = cameras.first;
-  print(firstCamera);
-  runApp(
-    MaterialApp(
-      theme: ThemeData.dark(),
-      home: TakePictureScreen(
-        // Pass the appropriate camera to the TakePictureScreen widget.
-        camera: firstCamera,
-        idToken: idToken,
-      ),
-    ),
-  );
-}
+// Future<void> upload(uploadImageURL) async {
+//   // Ensure that plugin services are initialized so that `availableCameras()`
+//   // can be called before `runApp()`
+//   WidgetsFlutterBinding.ensureInitialized();
+//
+//   // Obtain a list of the available cameras on the device.
+//   final cameras = await availableCameras();
+//
+//   // Get a specific camera from the list of available cameras.
+//   final firstCamera = cameras.first;
+//   print(firstCamera);
+//   // runApp(
+//   //   MaterialApp(
+//   //     theme: ThemeData.dark(),
+//   //     home: TakePictureScreen(
+//   //       // Pass the appropriate camera to the TakePictureScreen widget.
+//   //       camera: firstCamera,
+//   //       uploadImageURL: uploadImageURL,
+//   //     ),
+//   //   ),
+//   // );
+//   Navigator.push(context, route)
+// }
 
 // A screen that allows users to take a picture using a given camera.
 class TakePictureScreen extends StatefulWidget {
   const TakePictureScreen(
-      {Key? key, required this.camera, required this.idToken})
+      {Key? key, required this.camera, required this.uploadImageURL})
       : super(key: key);
 
   final CameraDescription camera;
-  final String idToken;
+  final String uploadImageURL;
 
   @override
   TakePictureScreenState createState() => TakePictureScreenState();
@@ -79,17 +80,28 @@ class TakePictureScreenState extends State<TakePictureScreen> {
       // You must wait until the controller is initialized before displaying the
       // camera preview. Use a FutureBuilder to display a loading spinner until the
       // controller has finished initializing.
-      body: FutureBuilder<void>(
-        future: _initializeControllerFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            // If the Future is complete, display the preview.
-            return CameraPreview(_controller);
-          } else {
-            // Otherwise, display a loading indicator.
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
+      body: Column(
+        children: [
+          FutureBuilder<void>(
+            future: _initializeControllerFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                // If the Future is complete, display the preview.
+                return CameraPreview(_controller);
+              } else {
+                // Otherwise, display a loading indicator.
+                return const Center(child: CircularProgressIndicator());
+              }
+            },
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(primary: Colors.teal),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Back', style: TextStyle(fontSize: 20)),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         // Provide an onPressed callback.
@@ -111,19 +123,10 @@ class TakePictureScreenState extends State<TakePictureScreen> {
                   // Pass the automatically generated path to
                   // the DisplayPictureScreen widget.
                   imagePath: image.path,
-                  idToken: widget.idToken,
+                  uploadImageURL: widget.uploadImageURL,
                 ),
               ),
             );
-            // SimpleS3 _simpleS3 = SimpleS3();
-            // String result = await _simpleS3.uploadFile(
-            //     File(image.path),
-            //     "s3-bucket-s3bucket-1wjvsaapgbhy2",
-            // "us-east-1:fe3e79db-abff-46d3-a6a3-a85bc99875c4",
-            // AWSRegions.usEast1,
-            //     fileName: "prashit.jpeg"
-            // );
-            // print(result);
           } catch (e) {
             // If an error occurs, log the error to the console.
             print(e);
@@ -131,16 +134,17 @@ class TakePictureScreenState extends State<TakePictureScreen> {
         },
         child: const Icon(Icons.camera_alt),
       ),
+
     );
   }
 }
 
 class DisplayPictureScreen extends StatelessWidget {
   final String imagePath;
-  final String idToken;
+  final String uploadImageURL;
 
   const DisplayPictureScreen(
-      {Key? key, required this.imagePath, required this.idToken})
+      {Key? key, required this.imagePath, required this.uploadImageURL})
       : super(key: key);
 
   @override
@@ -155,23 +159,18 @@ class DisplayPictureScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: () async {
-              final getURLResponse = await getURL(idToken, {
-                "ItemName": "prashit",
-                "User": "test flutter",
-                "Image1": false,
-                "Image2": true,
-              });
-              final body = jsonDecode(getURLResponse.body);
               //upload to s3
               Uint8List bytes = await File(imagePath).readAsBytes();
-              print(body);
               var response = await http.put(
                   Uri.parse(
-                      body["Image2"]),
+                      uploadImageURL),
                   body: bytes);
               if (response.statusCode == 200) {
                 ValidationAlert(message: "Uploaded successfully");
-                // Navigator.pop(context, true);
+                // Navigator.push(context, MaterialPageRoute(
+                //   builder: (context) => testpage(),
+                // ),);
+                Navigator.pop(context);
               }
             },
           ),
@@ -179,17 +178,4 @@ class DisplayPictureScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-Future<http.Response> getURL(String idToken, Object body) {
-  return http.post(
-    Uri.parse(
-        'https://q6ed0onbpd.execute-api.us-east-1.amazonaws.com/dev/api/product/add'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'x-api-key': 'c5ec1kyeAD1GADOf9l1qR7lBJOjC8WSK26ryi0lE',
-      'Auth': idToken
-    },
-    body: jsonEncode(body),
-  );
 }

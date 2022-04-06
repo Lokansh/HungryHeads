@@ -15,6 +15,7 @@ class SignUp extends StatelessWidget {
     TextEditingController passwordController = TextEditingController();
     TextEditingController rePasswordController = TextEditingController();
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text('New Registration'),
       ),
