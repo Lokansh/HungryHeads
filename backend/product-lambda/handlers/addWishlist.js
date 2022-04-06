@@ -11,7 +11,7 @@ const addWishlist = async (event) => {
       secretAccessKey: "d6waIXEGNfm4qd3b96U4M+Bx3p9vodhylVYQzVym",
     };
     body.WishlistId =
-      body.User.replace(/\s/g, "") + body.ItemId.replace(/\s/g, "");
+      body.UserId.replace(/\s/g, "") + body.ItemId.replace(/\s/g, "");
 
     var dynamoDB = new AWS.DynamoDB({ apiVersion: "2012-08-10" });
 

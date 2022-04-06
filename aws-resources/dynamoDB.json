@@ -85,7 +85,7 @@
       },
       "DeletionPolicy": "Retain"
     },
-    "WishlistTable": {
+    "UserHistoryTable": {
       "Type": "AWS::DynamoDB::Table",
       "Properties": {
         "TableName": "Wishlist",
@@ -98,6 +98,29 @@
         "KeySchema": [
           {
             "AttributeName": "WishlistId",
+            "KeyType": "HASH"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 2,
+          "WriteCapacityUnits": 2
+        }
+      },
+      "DeletionPolicy": "Retain"
+    },
+    "RecommendationTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName": "Recommendation",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "RecommendId",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "RecommendId",
             "KeyType": "HASH"
           }
         ],

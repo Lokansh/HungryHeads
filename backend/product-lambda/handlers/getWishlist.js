@@ -2,7 +2,7 @@ const AWS = require("aws-sdk");
 
 const getWishlist = async (event) => {
   try {
-    const userId = event.queryStringParameters?.userId?.toLowerCase();
+    const UserId = event.queryStringParameters?.UserId?.toLowerCase();
 
     AWS.config.credentials = {
       accessKeyId: "AKIASVGLKLB6NH25UNHW",
@@ -11,12 +11,9 @@ const getWishlist = async (event) => {
     var dynamoDB = new AWS.DynamoDB();
     var params = {
       TableName: "Wishlist",
-      FilterExpression: "#usr = :userId",
-      ExpressionAttributeNames: {
-        "#usr": "User",
-      },
+      FilterExpression: "UserId = :userId",
       ExpressionAttributeValues: {
-        ":userId": { S: userId },
+        ":userId": { S: UserId },
       },
     };
     const result = await dynamoDB.scan(params).promise();
