@@ -21,6 +21,25 @@
         ]
       }
     },
+    "APIGatewayStepFunction": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": "APIGatewayToStepFunctions",
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": ["states:StartSyncExecution"],
+              "Resource": ["arn:aws:states:*:*:stateMachine:*"]
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess"
+        ]
+      }
+    },
     "ProductLambdaExecutionRole": {
       "Type": "AWS::IAM::Role",
       "Properties": {
@@ -114,6 +133,20 @@
         "FunctionName": "product-lambda"
       }
     },
+    "AddProductLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "exports.handler = async (event) => {\nconst response = {\nstatusCode: 200,\nbody: JSON.stringify('Hello from Lambda!'),\n};\nreturn response;\n};"
+        },
+        "Role": {
+          "Fn::GetAtt": ["ProductLambdaExecutionRole", "Arn"]
+        },
+        "Runtime": "nodejs14.x",
+        "Handler": "index.handler",
+        "FunctionName": "add-product"
+      }
+    },
     "LambdaPermissionUserManagement": {
       "Type": "AWS::Lambda::Permission",
       "Properties": {
@@ -132,6 +165,41 @@
           "Ref": "ProductLambda"
         },
         "Principal": "apigateway.amazonaws.com"
+      }
+    },
+    "LambdaPermissionAddProduct": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "AddProductLambda"
+        },
+        "Principal": "apigateway.amazonaws.com"
+      }
+    },
+    "AddProductStepFunction": {
+      "Type": "AWS::StepFunctions::StateMachine",
+      "Properties": {
+        "RoleArn": {
+          "Fn::GetAtt": ["APIGatewayStepFunction", "Arn"]
+        },
+        "StateMachineName": "new-product",
+        "StateMachineType": "EXPRESS",
+        "Defination": {
+          "StartAt": "FirstState",
+          "States": {
+            "FirstState": {
+              "Type": "Task",
+              "Resource": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${ProductLambda.Arn}",
+              "End": true
+            },
+            "DefaultState": {
+              "Type": "Fail",
+              "Error": "DefaultStateError",
+              "Cause": "No Matches!"
+            }
+          }
+        }
       }
     },
     "APIGateway": {
@@ -452,6 +520,18 @@
         }
       }
     },
+    "NewProductResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": ["ProductResource", "ResourceId"]
+        },
+        "PathPart": "new",
+        "RestApiId": {
+          "Ref": "APIGateway"
+        }
+      }
+    },
     "RecommendProductResource": {
       "Type": "AWS::ApiGateway::Resource",
       "Properties": {
@@ -548,6 +628,41 @@
           "Uri": {
             "Fn::Sub": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${ProductLambda.Arn}/invocations"
           }
+        }
+      }
+    },
+    "APIProductNewPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "ApiKeyRequired": true,
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId": {
+          "Ref": "Authorizer"
+        },
+        "HttpMethod": "POST",
+        "ResourceId": {
+          "Fn::GetAtt": ["NewProductResource", "ResourceId"]
+        },
+        "RestApiId": {
+          "Ref": "APIGateway"
+        },
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS",
+          "Uri": {
+            "Fn::Sub": "arn:aws:apigateway:us-east-1:states:action/StartSyncExecution"
+          },
+          "RequestTemplates": {
+            "application/json": "#set($body= $input.json('$'))\n#set($inputRoot='{ \"data\" :'+$body+',\"apiInfo\":{\"httpMethod\" :\"'+ $context.httpMethod+'\", \"apiKey\":\"'+ $context.identity.apiKey+'\"}}')\n#set($apiData=$util.escapeJavaScript($inputRoot))\n#set($apiData=$apiData.replaceAll(\"\\\\'\",\"'\"))\n{\n  \"input\" :\"$apiData\",\n  \"stateMachineArn\": \"${APIGatewayStepFunction.Arn}\"  \n}"
+          },
+          "IntegrationResponses": [
+            {
+              "StatusCode": 200,
+              "ResponseTemplates": {
+                "application/json": "#set ($bodyObj = $util.parseJson($input.body))\n\n#if ($bodyObj.status == \"SUCCEEDED\")\n$bodyObj.output\n#elseif ($bodyObj.status == \"FAILED\")\n#set($context.responseOverride.status = 500)\n{\n\"cause\": \"$bodyObj.cause\",\n\"error\": \"$bodyObj.error\"\n}\n#else\n#set($context.responseOverride.status = 500)\n$input.body\n#end"
+              }
+            }
+          ]
         }
       }
     },
