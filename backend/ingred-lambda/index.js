@@ -1,21 +1,24 @@
 const AWS = require("aws-sdk");
+const pluralize = require("pluralize");
+
 const config = require("./config");
 
 var ingredType = require('./final-ingreds-type.json'); 
 var ingred = require('./ingreds.json'); 
-
 var ingreds = ingred.ingredients;
 
 var ingredCom ={
     "vegan":1,
     "vegetarian":2,
-    "non-vegetarian":3
+    "egg":3,
+    "non-vegetarian":4
 }
 
 var reverseIngredCom ={
     1:"vegan",
     2:"vegetarian",
-    3:"non-vegetarian"
+    3:"egg",
+    4:"non-vegetarian"
 }
 
 module.exports.handler = async (event) => {
@@ -44,8 +47,9 @@ module.exports.handler = async (event) => {
         
         var ingreds = getIngreds(res);
 
-        var mapping = getMapping(ingreds.checked);
-
+        var map = getMapping(ingreds.checked);
+        mapping = map[0]
+        reason = map[1]
         var db = new AWS.DynamoDB();
         var table = "Items";
         if(key.includes(".")){
@@ -74,6 +78,7 @@ module.exports.handler = async (event) => {
             realData.Ingreds = ingreds.results;
             realData.Detected = ingreds.checked;
             realData.ItemType = mapping;
+            realData.reasonIngre = reason;
             // To manually add product type
             if(realData.ItemName.includes("#")){
                 realData.ItemType = realData.ItemName.split("#")[1];
@@ -102,6 +107,7 @@ module.exports.handler = async (event) => {
 const getIngreds = (res)=>{
     var results = []
     var checked = []
+    var flag =true;
     if(res.Blocks){
         var con ="";
         res.Blocks.forEach(block => {
@@ -109,6 +115,19 @@ const getIngreds = (res)=>{
             if(block.BlockType=="WORD" & block.TextType=="PRINTED" & block.Confidence > 70){
                 var word =block.Text.toLowerCase();
                 var cleanWord = word.replace(/[^a-zA-Z ]/g, "");
+
+                if(cleanWord=="ingredients"&flag){
+                    con="";
+                    word="";
+                    results = []
+                    checked = []
+                    cleanWord="";
+                    flag =false;
+                }else if(cleanWord=="contains"){
+                    con="";
+                    word="";
+                    cleanWord="";
+                }
                 if(con){
                     if(word.endsWith(",")| word.endsWith(".")| word.endsWith(")")|word.endsWith(":")|word.endsWith("}")|word.endsWith("]")){
                         results.push(con+"-"+cleanWord);
@@ -140,7 +159,7 @@ const getIngreds = (res)=>{
                         con=cleanWord;
                     }
                     else{
-                        con =con+"-"+cleanWord;
+                        con =cleanWord;
                     }
                 }
             }
@@ -155,18 +174,22 @@ const getIngreds = (res)=>{
 
 const getMapping = (res)=>{
     output = 1;
+    reason="";
     res.forEach(ingred => {
-        if(ingred in ingredType){
-            if(ingredCom[ingredType[ingred]] >output){
-                output = ingredCom[ingredType[ingred]];
+        Object.keys(ingredType).forEach(key=>{
+            if(ingred.includes(key)){
+                if(ingredCom[ingredType[key]] >output){
+                    output = ingredCom[ingredType[key]];
+                    reason = key;
+                }
             }
-        }
+        })
     })
-    return reverseIngredCom[output];
+    return [reverseIngredCom[output],reason];
 }
 
 const checkIngred = (res)=>{
-    if(ingreds.includes(res)){
+    if(ingreds.includes(pluralize.singular(res))){
         return true;
     }
     return false;

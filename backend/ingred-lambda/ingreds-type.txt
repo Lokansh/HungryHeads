@@ -1,5 +1,6 @@
 vegan
 non-vegetarian
 vegetarian
+egg
 halal
 kosher
