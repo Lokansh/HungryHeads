@@ -17,7 +17,7 @@ const searchProducts = async (event) => {
         ProjectionExpression:
           "ItemType, Image1, Image2, ItemName, ItemId, #usr, Ingreds",
         FilterExpression:
-          "(contains (ItemName, :name) OR contains (ItemType, :category)) AND Visible = :visible",
+          "(contains (ItemName, :name) OR ItemType = :category) AND Visible = :visible",
         ExpressionAttributeNames: {
           "#usr": "User",
         },

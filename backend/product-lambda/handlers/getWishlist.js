@@ -11,13 +11,19 @@ const getWishlist = async (event) => {
     var dynamoDB = new AWS.DynamoDB();
     var params = {
       TableName: "Wishlist",
-      FilterExpression: "UserId = :userId",
+      FilterExpression: "#usr = :userId",
+      ExpressionAttributeNames: {
+        "#usr": "User",
+      },
       ExpressionAttributeValues: {
         ":userId": { S: userId },
       },
     };
     const result = await dynamoDB.scan(params).promise();
-    return { statusCode: 200, body: JSON.stringify(result) };
+    const jsonResult = result.Items.map((item) =>
+      AWS.DynamoDB.Converter.unmarshall(item)
+    );
+    return { statusCode: 200, body: JSON.stringify(jsonResult) };
   } catch (error) {
     const message = error?.message ? error.message : "Internal server error";
     return { statusCode: 500, body: JSON.stringify({ message: message }) };
