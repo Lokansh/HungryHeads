@@ -1,0 +1,5 @@
+vegan
+non-vegetarian
+vegetarian
+halal
+kosher
