@@ -7,8 +7,8 @@ const addWishlist = async (event) => {
     const body = JSON.parse(event.body);
 
     AWS.config.credentials = {
-      accessKeyId: "AKIASVGLKLB6K6EQAUPJ",
-      secretAccessKey: "d6waIXEGNfm4qd3b96U4M+Bx3p9vodhylVYQzVym",
+      accessKeyId: "****",
+      secretAccessKey: "****",
     };
     body.WishlistId =
       body.UserId.replace(/\s/g, "") + body.ItemId.replace(/\s/g, "");

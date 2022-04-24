@@ -1,5 +1,5 @@
 const constants = {
-    ClientId: "72jaie238rbl95c97bdngmr5gg"
+    ClientId: "****"
 } 
 
 module.exports  = constants;

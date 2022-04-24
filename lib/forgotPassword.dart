@@ -92,7 +92,7 @@ class ForgotPassword extends StatelessWidget {
           'https://q6ed0onbpd.execute-api.us-east-1.amazonaws.com/dev/api/user/forgotPassword'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'x-api-key': 'c5ec1kyeAD1GADOf9l1qR7lBJOjC8WSK26ryi0lE'
+        'x-api-key': '****'
       },
       body: jsonEncode(body),
     );

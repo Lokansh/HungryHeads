@@ -9,8 +9,8 @@ const searchProducts = async (event) => {
     );
 
     AWS.config.credentials = {
-      accessKeyId: "AKIASVGLKLB6NH25UNHW",
-      secretAccessKey: "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",
+      accessKeyId: "****",
+      secretAccessKey: "****",
     };
 
     var dynamoDB = new AWS.DynamoDB();

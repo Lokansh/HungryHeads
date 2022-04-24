@@ -215,7 +215,7 @@ Future<http.Response> getURL(String idToken, Object body) {
         'https://q6ed0onbpd.execute-api.us-east-1.amazonaws.com/dev/api/product/add'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
-      'x-api-key': 'c5ec1kyeAD1GADOf9l1qR7lBJOjC8WSK26ryi0lE',
+      'x-api-key': '****',
       'Auth': idToken
     },
     body: jsonEncode(body),
@@ -231,7 +231,7 @@ Future<http.Response> removeFromWishlist(
           .replace(queryParameters: params),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'x-api-key': 'c5ec1kyeAD1GADOf9l1qR7lBJOjC8WSK26ryi0lE',
+        'x-api-key': '****',
         'Auth': idToken
       });
 }

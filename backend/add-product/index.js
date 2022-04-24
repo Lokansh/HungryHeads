@@ -10,8 +10,8 @@ module.exports.handler = async (event) => {
     validateData(body);
 
     AWS.config.credentials = {
-      accessKeyId: "AKIASVGLKLB6K6EQAUPJ",
-      secretAccessKey: "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",
+      accessKeyId: "****",
+      secretAccessKey: "****",
     };
     var s3,
       res = {};

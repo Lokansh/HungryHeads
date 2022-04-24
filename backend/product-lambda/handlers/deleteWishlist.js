@@ -5,8 +5,8 @@ const deleteWishlist = async (event) => {
     const wishlistId = event.queryStringParameters?.wishlistId?.toLowerCase();
 
     AWS.config.credentials = {
-      accessKeyId: "AKIASVGLKLB6NH25UNHW",
-      secretAccessKey: "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",
+      accessKeyId: "****",
+      secretAccessKey: "****",
     };
     var dynamoDB = new AWS.DynamoDB();
     var params = {

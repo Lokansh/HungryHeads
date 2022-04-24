@@ -208,7 +208,7 @@ Future<http.Response> search(String idToken, Map<String, dynamic> params) {
         .replace(queryParameters: params),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
-      'x-api-key': 'c5ec1kyeAD1GADOf9l1qR7lBJOjC8WSK26ryi0lE',
+      'x-api-key': '****',
       'Auth': idToken
     },
   );
