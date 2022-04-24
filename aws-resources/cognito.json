@@ -52,8 +52,8 @@
         },
         "ProviderName": "Google",
         "ProviderDetails": {
-          "client_id": "1093762161401-msji1vlu2ihd2t23n1vpbracislq9sbc.apps.googleusercontent.com",
-          "client_secret": "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",
+          "client_id": "****",
+          "client_secret": "****",
           "authorize_scopes": "profile email openid"
         },
         "ProviderType": "Google",
@@ -70,8 +70,8 @@
         },
         "ProviderName": "Facebook",
         "ProviderDetails": {
-          "client_id": "968471563776676",
-          "client_secret": "60f173f70c4601b33a9276db01dc5cec",
+          "client_id": "****",
+          "client_secret": "****",
           "authorize_scopes": "public_profile,email"
         },
         "ProviderType": "Facebook",
